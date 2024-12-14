@@ -38,7 +38,7 @@
     "start": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "build_now": "npm i --legacy-peer-deps; npm run build"
+    "build_now": "npm i; npm run build"
   },
   "eslintConfig": {
     "extends": [
