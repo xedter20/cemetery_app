@@ -603,7 +603,7 @@ export const CemeteryCanvas = ({
             </Box>
 
             <Box sx={{ position: "absolute" }}>
-              <canvas className="canvas-container-bar-char" ref={canvasRef} onClick={handleCanvasClick} /> // Listen for clicks on the canvas />
+              <canvas className="canvas-container-bar-char" ref={canvasRef} onClick={handleCanvasClick} />
             </Box>
           </Grid>
         </Grid2>
