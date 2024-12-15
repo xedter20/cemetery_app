@@ -486,7 +486,7 @@ export const Payments = () => {
         PERMIT_NO: '',
         DATE_PAID: '',
         DECEASED_NAME: '',
-        NEXT_PAYMENT_DATE: paymentListPerDeceased.NEXT_PAYMENT_DATE || ''
+        NEXT_PAYMENT_DATE: paymentListPerDeceased?.NEXT_PAYMENT_DATE || ''
 
       },
       validationSchema: Yup.object({
