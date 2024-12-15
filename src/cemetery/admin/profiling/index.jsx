@@ -146,27 +146,8 @@ export const Profiling = () => {
             <BiMapPin className="mr-2 text-lg" /> {/* Archive Icon */}
             Map
           </button>
-          {!addButtonDisabled && <button
-            onClick={() => {
-              //addPaymentModal
-              setViewedData(row.original);
-              document.getElementById('addPaymentModal').showModal();
-            }}
-            className="flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
-            <BiSolidBank className="mr-2 text-lg" /> {/* Archive Icon */}
-            Add Payment
-          </button>}
-          {!addButtonDisabled && <button
-            onClick={() => {
-              //addPaymentModal
-              setViewedData(row.original);
-              document.getElementById('addPaymentModal').showModal();
-            }}
-            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg
-             hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
-            <BiInfoCircle className="mr-2 text-lg" /> {/* Archive Icon */}
-            View Payments
-          </button>}
+
+
         </div>
         // <Stack spacing={1} direction={"row"}>
         //   <Button
