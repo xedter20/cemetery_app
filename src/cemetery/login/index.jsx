@@ -30,9 +30,11 @@ export const LoginPage = () => {
         const user = getUser();
         console.log({ user })
         if (user?.accountType) {
+
+          console.log("Dex");
           navigate("/cemetery/admin/dashboard");
         } else {
-          navigate(ROUTE_FINDER);
+          //navigate(ROUTE_FINDER);
         }
       }
     });

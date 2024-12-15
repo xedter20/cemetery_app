@@ -7,8 +7,10 @@ export default function CemeteryRentCalculator({
   values,
   handleBlur
 }) {
-  const [years, setYears] = useState(1)
-  const [amount, setAmount] = useState(100)
+
+  console.log({ values })
+  const [years, setYears] = useState(values.NUM_YEARS_PAY || 1)
+  const [amount, setAmount] = useState(values.AMOUNT_PER_YEAR || 100)
   const [tableData, setTableData] = useState([])
   const [grandTotal, setGrandTotal] = useState(0)
   useEffect(() => {
@@ -34,6 +36,23 @@ export default function CemeteryRentCalculator({
     setFieldValue('NEXT_PAYMENT_DATE', data[data.length - 1])
   }, [years, amount, values.DATE_PAID]);
 
+  const paymentDateRange = values.NEXT_PAYMENT_DATE.validityPeriod;
+
+  // Extract the last date from the range
+
+  const lastDateStr = paymentDateRange?.split(" - ")[1];
+
+
+
+  const date = new Date(lastDateStr);
+
+  // Increment the date by one day
+  date.setDate(date.getDate() + 1);
+
+  // Format the new date back into the desired string format
+  const nextPaymentDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+
+  const dateInWords = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   return (
     <div className="container mx-auto p-4 space-y-6">
@@ -120,6 +139,16 @@ export default function CemeteryRentCalculator({
                 <td className="px-6 py-3 text-green-500">Grand Total</td>
                 <td className="px-6 py-3 text-base">₱
                   {grandTotal.toFixed(2)}
+
+                </td>
+                <td></td>
+              </tr>
+              <tr className="font-semibold text-gray-900">
+                <td className="px-6 py-3 text-green-500">Next Payment Date</td>
+                <td className="px-6 py-3 text-base">
+
+
+                  {nextPaymentDate} -  {dateInWords}
 
                 </td>
                 <td></td>

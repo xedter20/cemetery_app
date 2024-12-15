@@ -38,6 +38,7 @@ import {
 import { BiEdit, BiSolidBank, BiMapPin, BiInfoCircle } from "react-icons/bi"; // Import icons from React Icons
 export const Profiling = () => {
   const user = getUser();
+
   let addButtonDisabled = user.accountType === 'enterprise';
   const [page, setPage] = useState(1);
   const [count, setCount] = useState(3);
@@ -145,7 +146,7 @@ export const Profiling = () => {
             <BiMapPin className="mr-2 text-lg" /> {/* Archive Icon */}
             Map
           </button>
-          <button
+          {!addButtonDisabled && <button
             onClick={() => {
               //addPaymentModal
               setViewedData(row.original);
@@ -154,8 +155,8 @@ export const Profiling = () => {
             className="flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
             <BiSolidBank className="mr-2 text-lg" /> {/* Archive Icon */}
             Add Payment
-          </button>
-          <button
+          </button>}
+          {!addButtonDisabled && <button
             onClick={() => {
               //addPaymentModal
               setViewedData(row.original);
@@ -165,7 +166,7 @@ export const Profiling = () => {
              hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
             <BiInfoCircle className="mr-2 text-lg" /> {/* Archive Icon */}
             View Payments
-          </button>
+          </button>}
         </div>
         // <Stack spacing={1} direction={"row"}>
         //   <Button

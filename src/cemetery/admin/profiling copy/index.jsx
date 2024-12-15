@@ -295,14 +295,48 @@ export const Profiling = () => {
             theme: "light",
             // transition: Bounce,
           });
-          searchDeased();
-          resetForm();
-          setOpenCreateAccount(false)
-          document.getElementById('addDeceasedModal').close();
+          // searchDeased();
+          // resetForm();
+          // setOpenCreateAccount(false)
+          // document.getElementById('addDeceasedModal').close();
 
-        } catch (error) {
+        } catch (err) {
 
-          console.log(error)
+          console.log(err)
+
+          // Capture and display error from the backend
+          if (err.response && err.response.data && err.response.data.message) {
+
+
+            let message = err.response.data.message
+            // display error try catch
+            toast.error(message, {
+              position: "top-right",
+              autoClose: 1000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+              // transition: Bounce,
+            });
+
+          } else {
+            let message = 'Something went wrong. Please try again';
+            toast.error(message, {
+              position: "top-right",
+              autoClose: 1000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+              // transition: Bounce,
+            });
+          }
+
 
         }
 
@@ -1535,7 +1569,7 @@ export const Profiling = () => {
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 mb-4">✕</button>
 
           <div className="modal-header flex items-center justify-between p-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-t-lg">
-            <h1 className="text-xl font-semibold">Add Rental Payment</h1>
+            <h1 className="text-xl font-semibold">Add Rental Payments</h1>
 
           </div>
           <div className="p-2 space-y-4 md:space-y-6 sm:p-4">

@@ -271,6 +271,7 @@ export const Payments = () => {
 
   const user = getUser();
   let addButtonDisabled = user.accountType === 'enterprise';
+  const [deceasedId, setdeceasedId] = useState('');
   const [page, setPage] = useState(1);
   const [count, setCount] = useState(3);
   const [deceasedList, setDeceasedList] = useState([]);
@@ -306,7 +307,7 @@ export const Payments = () => {
 
   const [paymentList, setPaymentList] = useState([])
 
-
+  const [paymentListPerDeceased, setpaymentListPerDeceased] = useState({})
 
   const fetchAllDeceased = async () => {
 
@@ -323,7 +324,8 @@ export const Payments = () => {
       return {
         value: val.DECEASED_ID,
         label: `${val.FNAME} ${val.LNAME}`,
-        payeeName: `${val.PAYEE_FNAME} ${val.PAYEE_LNAME}`
+        payeeName: `${val.PAYEE_FNAME} ${val.PAYEE_LNAME}`,
+        ...val
       }
     }))
 
@@ -354,6 +356,32 @@ export const Payments = () => {
   }, [])
 
 
+
+
+  const payments = async () => {
+
+    let res = await axios({
+      method: 'get',
+      url: `deceased/getPayments/${deceasedId}`,
+
+    });
+
+
+
+
+
+    setpaymentListPerDeceased(res.data.data[0])
+
+  }
+
+  useEffect(() => {
+    if (deceasedId) {
+      payments()
+    }
+
+  }, [deceasedId])
+
+
   const tableColumns = useMemo(() => [
     {
       Header: '#',
@@ -370,7 +398,7 @@ export const Payments = () => {
     { Header: "Order Number", accessor: "ORDER_NO", Cell: ({ row, value }) => <span>{value}</span> },
     { Header: "Amount", accessor: "AMOUNT", Cell: ({ row, value }) => <span>{value}</span> },
     { Header: "Number of Years Paid", accessor: "NUM_YEARS_PAY", Cell: ({ row, value }) => <span>{value}</span> },
-    { Header: "Next Payment Date", accessor: "NEXT_PAYMENT_DATE", Cell: ({ row, value }) => <span>{value}</span> },
+    { Header: "Next Payment Date", accessor: "NEXT_PAYMENT_DATE", Cell: ({ row, value }) => <span>{new Date(value).toLocaleString()}</span> },
 
     { Header: "Status", accessor: "STATUS", Cell: ({ row, value }) => <span>{value}</span> },
     { Header: "Added By", accessor: "ADDED_BY", Cell: ({ row, value }) => <span>{value}</span> },
@@ -398,7 +426,7 @@ export const Payments = () => {
             onClick={() => {
               //addPaymentModal
               setViewedData(row.original);
-              document.getElementById('addPayment').showModal();
+              document.getElementById('addPaymentModal').showModal();
             }}
             className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg
              hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
@@ -458,7 +486,7 @@ export const Payments = () => {
         PERMIT_NO: '',
         DATE_PAID: '',
         DECEASED_NAME: '',
-        NEXT_PAYMENT_DATE: ''
+        NEXT_PAYMENT_DATE: paymentListPerDeceased.NEXT_PAYMENT_DATE || ''
 
       },
       validationSchema: Yup.object({
@@ -514,12 +542,29 @@ export const Payments = () => {
 
           console.log({ NEXT_PAYMENT_DATE }); // Output: "12/4/2026"
 
+          const nextPaymentDate = new Date(NEXT_PAYMENT_DATE);  // Example date
+
+          // Adjust to Manila time zone
+          const manilaDate = nextPaymentDate.toLocaleString('en-PH', {
+            timeZone: 'Asia/Manila',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }).split(',')[0];  // Extract the date part (YYYY-MM-DD)
+          // Now add the time '00:00:00' to the date
+          const date = new Date(manilaDate);
+          const formattedDate = date.getFullYear() + '-' +
+            (date.getMonth() + 1).toString().padStart(2, '0') + '-' +
+            date.getDate().toString().padStart(2, '0') + ' 00:00:00';
+
+          console.log(formattedDate);  // Output: "2026-12-16 00:00:00"tput: "2026-12-16 00:00:00"
+
 
 
           let res = await axios({
             method: 'POST',
             url: 'payments/create',
-            data: { ...values, DECEASED_NAME, AMOUNT, NEXT_PAYMENT_DATE }
+            data: { ...values, DECEASED_NAME, AMOUNT, NEXT_PAYMENT_DATE: formattedDate }
           });
 
 
@@ -558,27 +603,27 @@ export const Payments = () => {
   const formikConfigUpdate = (viewedData) => {
 
 
-    console.log({ viewedData })
 
 
 
 
     // console.log(selectedFaq.Admin_Fname)
 
-    console.log({ viewedData })
+    console.log({ viewedData: viewedData })
 
 
     return {
       initialValues: {
-        payeeFirstName: viewedData.payeeFirstName,
-        payeeLastName: viewedData.payeeLastName,
-        firstName: viewedData.firstName,
-        lastName: viewedData.lastName,
-        born: '',
-        yearsPaid: '',
-        permitNumber: '',
-        ORNumber: '',
-        Amount: '',
+        DECEASED_NAME: viewedData.DECEASED_NAME,
+        DECEASED_ID: '',
+        ADDED_BY: viewedData.ADDED_BY,
+        NUM_YEARS_PAY: viewedData.NUM_YEARS_PAY,
+        AMOUNT_PER_YEAR: viewedData.AMOUNT_PER_YEAR,
+        AMOUNT: '',
+        ORDER_NO: viewedData.ORDER_NO,
+        PERMIT_NO: viewedData.PERMIT_NO,
+        DATE_PAID: viewedData.DATE_PAID,
+        NEXT_PAYMENT_DATE: ''
 
       },
       validationSchema: Yup.object({
@@ -1007,6 +1052,8 @@ export const Payments = () => {
                 isSubmitting
               }) => {
 
+                console.log({ dex: paymentListPerDeceased })
+
                 return <Form className="">
                   <div className="">
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -1031,9 +1078,15 @@ export const Payments = () => {
 
 
                             let filteredDeceased = deceasedList.find(d => d.value === deceasedId)
+
+                            console.log({ filteredDeceased })
                             setFieldTouched('DECEASED_ID', true);
                             setFieldValue('DECEASED_ID', deceasedId);
                             setFieldValue('ADDED_BY', filteredDeceased.payeeName)
+
+
+                            setdeceasedId(deceasedId);
+                            setFieldValue('DATE_PAID', new Date(paymentListPerDeceased.NEXT_PAYMENT_DATE).toISOString().split('T')[0])
 
                           }}
 
@@ -1062,17 +1115,11 @@ export const Payments = () => {
                       </div>
 
                     </div>
-                    <Calculator
-                      setFieldValue={setFieldValue}
-                      values={values}
-                      handleBlur={handleBlur}
-
-                    />
 
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                       <InputText
                         isRequired
-                        label="Date Paid"
+                        label="Payment Date"
                         name="DATE_PAID"
                         type="date"
                         value={values.DATE_PAID}
@@ -1113,6 +1160,15 @@ export const Payments = () => {
 
 
                     </div>
+
+                    <Calculator
+                      setFieldValue={setFieldValue}
+                      values={values}
+                      handleBlur={handleBlur}
+
+                    />
+
+
 
                     {/* <div className="grid grid-cols-1 gap-3 md:grid-cols-1">
                       <InputText
@@ -1178,393 +1234,7 @@ export const Payments = () => {
                 </Form>
               }}
             </Formik>
-            {viewedData.id &&
-              <Formik {...formikConfigUpdate(viewedData)}>
-                {({
-                  handleSubmit,
-                  handleChange,
-                  handleBlur, // handler for onBlur event of form elements
-                  values,
-                  touched,
-                  errors,
-                  submitForm,
-                  setFieldTouched,
-                  setFieldValue,
-                  setFieldError,
-                  setErrors,
-                  isSubmitting
-                }) => {
 
-                  return <Form className="">
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <InputText
-                        isRequired
-                        label="First Name"
-                        name="firstName"
-                        type="text"
-                        value={values.firstName}
-
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-
-                      <InputText
-                        isRequired
-                        label="Last Name"
-                        name="lastName"
-                        type="text"
-                        value={values.lastName}
-
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <InputText
-                        isRequired
-                        label="Middle Name"
-                        name="middleName"
-                        type="text"
-                        value={values.middleName}
-
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-
-                      <InputText
-                        isRequired
-                        label="Suffix"
-                        name="suffix"
-                        type="text"
-                        value={values.suffix}
-
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <InputText
-                        isRequired
-                        label="Address"
-                        name="address"
-                        type="text"
-                        value={values.address}
-
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-
-                      <InputText
-                        isRequired
-                        label="Date of Birth"
-                        name="born"
-                        type="date"
-                        value={values.born}
-
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <InputText
-                        isRequired
-                        label="Date of Death"
-                        name="died"
-                        type="date"
-                        value={values.died}
-
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-
-
-                      {/* <InputSelect
-                    isRequired
-                    label="Cemetery Location"
-                    name="cemeteryLocation"
-                    value={fieldData.cemeteryLocation}
-                    onChange={(e) =>
-                      setFieldData((prev) => ({
-                        ...prev,
-                        cemeteryLocation: e.target.value,
-                      }))
-                    }
-                    onBlur={handleBlur}
-                  >
-                    <option value="Poblacion Cemetery">Poblacion Cemetery</option>
-                    <option value="Ban Ban Cemetery">Banban Cemetery</option>
-                    <option value="East Velencia Cemetery">East Valencia Cemetery</option>
-                  </InputSelect> */}
-                      <div className="mt-2">
-                        <Dropdown
-
-                          // icons={mdiAccount}
-                          label="Cemetery Location"
-                          name="cemeteryLocation"
-                          placeholder=""
-                          value={"Cash"}
-                          setFieldValue={setFieldValue}
-                          onBlur={handleBlur}
-                          options={[
-                            {
-                              label: "Poblacion Cemetery",
-                              value: "Poblacion Cemetery"
-                            },
-                            {
-                              label: "Ban Ban Cemetery",
-                              value: "Ban Ban Cemetery"
-                            },
-                            {
-                              label: "BPEast Velencia Cemetery",
-                              value: "East Velencia Cemetery"
-                            }
-                          ]}
-                          functionToCalled={(value) => {
-
-                            // setPlan();
-                            // let user = users.find(u => {
-                            //   return u.value === value
-                            // })
-                            setPlan(value)
-                            setFieldValue('cemeteryLocation', value)
-                          }}
-
-                        /></div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <InputText
-                        isRequired
-                        label="Date Permit"
-                        name="datePermit"
-                        type="date"
-                        value={values.datePermit}
-                        // onChange={(e) =>
-                        //   setFieldData((prev) => ({
-                        //     ...prev,
-                        //     datePermit: e.target.value,
-                        //   }))
-                        // }
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-
-
-
-                      <div className="mt-2">
-                        <Dropdown
-
-                          // icons={mdiAccount}
-                          label="Nature App"
-                          name="natureApp"
-                          placeholder=""
-                          value={"Cash"}
-                          setFieldValue={setFieldValue}
-                          onBlur={handleBlur}
-                          options={[
-                            {
-                              label: "Construction",
-                              value: "Construction"
-                            },
-                            {
-                              label: "Excavation",
-                              value: "Excavation"
-                            },
-
-                          ]}
-                          functionToCalled={(value) => {
-
-                            // setPlan();
-                            // let user = users.find(u => {
-                            //   return u.value === value
-                            // })
-                            setPlan(value)
-                            setFieldValue('natureApp', value)
-                          }}
-
-                        /></div>
-
-                      {/* <InputSelect
-                    isRequired
-                    label="Nature App"
-                    name="natureApp"
-                    value={fieldData.natureApp}
-                    onChange={(e) =>
-                      setFieldData((prev) => ({
-                        ...prev,
-                        natureApp: e.target.value,
-                      }))
-                    }
-                    onBlur={handleBlur}
-                  >
-                    <option value="Construction">Construction</option>
-                    <option value="Excavation">Excavation</option>
-                  </InputSelect> */}
-
-
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <InputText
-                        isRequired
-                        label="Layer Niche"
-                        name="layerNiche"
-                        type="text"
-                        value={values.layerNiche}
-
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-
-                      <InputText
-                        isRequired
-                        label="Layer Address"
-                        name="layerAddress"
-                        type="text"
-                        value={values.layerAddress}
-                        // onChange={(e) =>
-                        //   setFieldData((prev) => ({
-                        //     ...prev,
-                        //     layerAddress: e.target.value,
-                        //   }))
-                        // }
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <InputText
-                        isRequired
-                        label="Payee Last Name"
-                        name="payeeLastName"
-                        type="text"
-                        value={values.payeeLastName}
-                        // onChange={(e) =>
-                        //   setFieldData((prev) => ({
-                        //     ...prev,
-                        //     payeeLastName: e.target.value,
-                        //   }))
-                        // }
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-
-                      <InputText
-                        isRequired
-                        label="Payee First Name"
-                        name="payeeFirstName"
-                        type="text"
-                        value={values.payeeFirstName}
-                        // onChange={(e) =>
-                        //   setFieldData((prev) => ({
-                        //     ...prev,
-                        //     payeeFirstName: e.target.value,
-                        //   }))
-                        // }
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <InputText
-                        isRequired
-                        label="Payee Middle Name"
-                        name="payeeMiddleName"
-                        type="text"
-                        value={values.payeeMiddleName}
-                        // onChange={(e) =>
-                        //   setFieldData((prev) => ({
-                        //     ...prev,
-                        //     payeeMiddleName: e.target.value,
-                        //   }))
-                        // }
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-
-                      <InputText
-                        isRequired
-                        label="Payee Suffix"
-                        name="payeeSuffix"
-                        type="text"
-                        value={values.payeeSuffix}
-                        // onChange={(e) =>
-                        //   setFieldData((prev) => ({
-                        //     ...prev,
-                        //     payeeSuffix: e.target.value,
-                        //   }))
-                        // }
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <InputText
-                        isRequired
-                        label="Payee Contact"
-                        name="payeeContact"
-                        type="text"
-                        value={values.payeeContact}
-                        // onChange={(e) =>
-                        //   setFieldData((prev) => ({
-                        //     ...prev,
-                        //     payeeContact: e.target.value,
-                        //   }))
-                        // }
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-
-                      <InputText
-                        isRequired
-                        label="Payee Email"
-                        name="payeeEmail"
-                        type="text"
-                        value={values.payeeEmail}
-                        // onChange={(e) =>
-                        //   setFieldData((prev) => ({
-                        //     ...prev,
-                        //     payeeEmail: e.target.value,
-                        //   }))
-                        // }
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <InputText
-                        isRequired
-                        label="Payee Address"
-                        name="payeeAddress"
-                        type="text"
-                        value={values.payeeAddress}
-                        // onChange={(e) =>
-                        //   setFieldData((prev) => ({
-                        //     ...prev,
-                        //     payeeAddress: e.target.value,
-                        //   }))
-                        // }
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-                    </div>
-
-                    <div className="modal-action">
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className={
-                          'btn mt-4 shadow-lg  bg-blue-700 font-bold text-white flex justify-center items-center'
-
-                        }>
-                        {isSubmitting ? (
-                          <div><span className="spinner-border animate-spin inline-block w-4 h-4 border-2 rounded-full"></span> Processing </div>
-                        ) : (
-                          'Submit'
-                        )}
-                      </button>
-                      <button className="btn mt-4" onClick={(e) => {
-                        e.preventDefault();
-                        setViewedData({})
-                        document.getElementById('addPayment').close();
-                      }}>
-                        Close
-                      </button>
-                    </div>
-
-                  </Form>
-                }}
-              </Formik>}
           </div>
           {/* <div className="modal-action">
             <form method="dialog">
@@ -1593,7 +1263,7 @@ export const Payments = () => {
           <div className="p-2 space-y-4 md:space-y-6 sm:p-4">
 
 
-            {viewedData.id &&
+            {viewedData.SEQ_NO &&
               <Formik {...formikConfigUpdate(viewedData)}>
                 {({
                   handleSubmit,
@@ -1619,19 +1289,19 @@ export const Payments = () => {
                         <input
                           id="firstName"
                           type="text"
-                          value={`${values.payeeFirstName} ${values.payeeLastName}`}
+                          value={`${values.ADDED_BY}`}
                           disabled
                           className="mt-2 p-3 w-full border border-gray-300 rounded-md bg-gray-200 text-gray-500 cursor-not-allowed focus:outline-none"
                         />
                       </div>
                       <div className="p-4">
-                        <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="firstNames" className="block text-sm font-medium text-gray-700">
                           Name of the Deceased
                         </label>
                         <input
-                          id="firstName"
+                          id="DECEASED_NAME"
                           type="text"
-                          value={`${values.firstName} ${values.lastName}`}
+                          value={`${values.DECEASED_NAME}`}
                           disabled
                           className="mt-2 p-3 w-full border border-gray-300 rounded-md bg-gray-200 text-gray-500 cursor-not-allowed focus:outline-none"
                         />
@@ -1641,24 +1311,7 @@ export const Payments = () => {
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
 
 
-                      <InputText
-                        isRequired
-                        label="Date Paid"
-                        name="born"
-                        type="date"
-                        value={values.born}
 
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-                      <InputText
-                        isRequired
-                        label="Number of Years Paid"
-                        name="yearsPaid"
-                        type="yearsPaid"
-                        value={values.yearsPaid}
-
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
                     </div>
 
 
@@ -1669,7 +1322,7 @@ export const Payments = () => {
                         label="Permit #"
                         name="permitNumber"
                         type="text"
-                        value={values.permitNumber}
+                        value={values.PERMIT_NO}
                         // onChange={(e) =>
                         //   setFieldData((prev) => ({
                         //     ...prev,
@@ -1681,9 +1334,9 @@ export const Payments = () => {
                       <InputText
                         isRequired
                         label="OR #"
-                        name="ORNumber"
+                        name="ORDER_NO"
                         type="text"
-                        value={values.ORNumber}
+                        value={values.ORDER_NO}
                         // onChange={(e) =>
                         //   setFieldData((prev) => ({
                         //     ...prev,
@@ -1698,23 +1351,16 @@ export const Payments = () => {
 
                     </div>
 
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-1">
-                      <InputText
-                        isRequired
-                        label="Amount"
-                        name="Amount"
-                        type="text"
-                        value={values.Amount}
-
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
 
 
-                    </div>
+                    <Calculator
+                      setFieldValue={setFieldValue}
+                      values={values}
+                      handleBlur={handleBlur}
 
+                    />
 
-
-                    <div className="modal-action">
+                    {/* <div className="modal-action">
                       <button
                         type="submit"
                         disabled={isSubmitting}
@@ -1735,7 +1381,7 @@ export const Payments = () => {
                       }}>
                         Close
                       </button>
-                    </div>
+                    </div> */}
 
                   </Form>
                 }}
@@ -1749,6 +1395,9 @@ export const Payments = () => {
           </div> */}
         </div>
       </dialog>
+
+
+
       <ToastContainer />
     </Box>
   );

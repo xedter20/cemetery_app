@@ -43,6 +43,7 @@ function ResponsiveDrawer(props) {
     { caption: "Dashboard", icon: () => <BiBarChartAlt2 className="mr-2 text-2xl" />, href: "dashboard" },
     { caption: "User Management", icon: () => <BiUser className="mr-2 text-2xl" />, href: "user-management" },
     { caption: "Profile Management", icon: () => <BiEdit className="mr-2 text-2xl" />, href: "profiling" },
+    { caption: "Payments", icon: () => <BiWallet className="mr-2 text-2xl" />, href: "payments" },
     { caption: "Notification", icon: () => <BiBell className="mr-2 text-2xl" />, href: "notification" },
     { caption: "Reports", icon: () => <BiBarChartAlt2 className="mr-2 text-2xl" />, href: "reports" },
     { caption: "Logs", icon: () => <BiInfoCircle className="mr-2 text-2xl" />, href: "logs" },

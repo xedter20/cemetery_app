@@ -150,6 +150,10 @@ export const UserManagement = () => {
     []
   );
 
+
+  const [error, setError] = useState(''); // State to store error message
+  const [success, setSuccess] = useState(''); // State to store success message
+
   const formikConfig = () => {
 
 
@@ -217,9 +221,29 @@ export const UserManagement = () => {
           setOpenCreateAccount(false)
 
           getAdminList();
-        } catch (error) {
+        } catch (err) {
 
-          console.log(error)
+          // Capture and display error from the backend
+          if (err.response && err.response.data && err.response.data.message) {
+            setError(err.response.data.message);
+
+            let message = err.response.data.message
+            // display error try catch
+            toast.error(message, {
+              position: "top-right",
+              autoClose: 1000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+              // transition: Bounce,
+            });
+
+          } else {
+            setError('Something went wrong. Please try again.');
+          }
 
         }
 
