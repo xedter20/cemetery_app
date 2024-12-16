@@ -515,7 +515,13 @@ export const CemeteryCanvas = ({
                 }}
               >
                 <Stack direction={"column"} textAlign={"center"}>
-                  <Typography variant="h6">{`${deceasedInfo?.FNAME} ${deceasedInfo?.MNAME}. ${deceasedInfo?.LNAME}`}</Typography>
+                  <Typography variant="h6">{`${deceasedInfo?.firstName
+
+
+                    || deceasedInfo?.FNAME
+
+                    } ${deceasedInfo?.middleName || deceasedInfo?.MNAME} 
+                    ${deceasedInfo?.lastName || deceasedInfo?.LNAME}`}</Typography>
                   <Typography variant="body2">NAME</Typography>
                 </Stack>
               </Box>
@@ -537,7 +543,9 @@ export const CemeteryCanvas = ({
                 >
                   <Stack direction={"column"} textAlign={"center"}>
                     <Typography variant="body1">BORN</Typography>
-                    <Typography variant="h6">{deceasedInfo?.BORN}</Typography>
+                    <Typography variant="h6">{deceasedInfo?.born
+                      || deceasedInfo?.BORN
+                    }</Typography>
                   </Stack>
                 </Box>
                 <Box
@@ -546,7 +554,10 @@ export const CemeteryCanvas = ({
                 >
                   <Stack direction={"column"} textAlign={"center"}>
                     <Typography variant="body1">DIED</Typography>
-                    <Typography variant="h6">{deceasedInfo?.DIED}</Typography>
+                    <Typography variant="h6">{deceasedInfo?.died
+
+                      || deceasedInfo?.DIED
+                    }</Typography>
                   </Stack>
                 </Box>
               </Box>
@@ -565,7 +576,11 @@ export const CemeteryCanvas = ({
                 <Stack direction={"column"} textAlign={"center"}>
                   <Typography variant="body1">Layer of niche</Typography>
                   <Typography variant="h6">
-                    Layer {deceasedInfo?.LAYER_NICHE}
+                    Layer {deceasedInfo?.layerNiche
+
+
+                      || deceasedInfo?.LAYER_NICHE
+                    }
                   </Typography>
                 </Stack>
               </Box>
@@ -584,7 +599,7 @@ export const CemeteryCanvas = ({
                 <Stack direction={"column"} textAlign={"center"}>
                   <Typography variant="body1">Cemetery Location</Typography>
                   <Typography variant="h6">
-                    {deceasedInfo?.CMTRY_LOC}
+                    {deceasedInfo?.cemeteryLocation}
                   </Typography>
                 </Stack>
               </Box>
