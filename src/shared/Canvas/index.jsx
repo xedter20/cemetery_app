@@ -321,6 +321,8 @@ export const CemeteryCanvas = ({
       //   i.draw();
       // });
 
+
+      console.log({ list })
       list.map((item) => {
         item.draw();
       });
@@ -339,7 +341,7 @@ export const CemeteryCanvas = ({
       context.lineWidth = 5;
       contextRef.current = context;
 
-      drawLine();
+      // drawLine();
 
       setPointer({
         x: base64Data.destination.x,
