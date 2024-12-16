@@ -66,6 +66,17 @@ function ResponsiveDrawer(props) {
       // { caption: "Reports", icon: () => <BiBarChartAlt2 className="mr-2 text-2xl" />, href: "reports" },
     ];
   }
+
+
+  if (user.accountType === "guest") {
+    drawerItems = [
+      { caption: "Profile Management", icon: () => <BiEdit className="mr-2 text-2xl" />, href: "profiling" },
+      // Uncomment the following lines if needed
+      // { caption: "Notification", icon: () => <BiBell className="mr-2 text-2xl" />, href: "notification" },
+      // { caption: "Reports", icon: () => <BiBarChartAlt2 className="mr-2 text-2xl" />, href: "reports" },
+    ];
+  }
+
   //enterprise
 
   const [activeItem, setActiveItem] = React.useState(drawerItems[0]?.href || "");

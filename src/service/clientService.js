@@ -61,7 +61,7 @@ export const clientApi = createApi({
     }),
     clientSearchDeceased: builder.query({
       query: fullname => ({
-        url: `/guest/search`,
+        url: `api/guest/search`,
         method: 'GET',
         params: { fullname },
         headers: {

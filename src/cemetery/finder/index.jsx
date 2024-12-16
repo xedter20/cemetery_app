@@ -41,12 +41,13 @@ export const Finder = () => {
       }
     }
 
-    if (result.data) {
-      if (Number(result.data.statusCode) == 200) {
-        navigate(`/cemetery/map-view?fullname=${search}&location=${result?.data?.deceased.cemeteryLocation}`);
-      } else {
-        setErrorMessage(result.currentData?.message)
-      }
+
+    console.log(result);
+
+    if (result?.data?.success) {
+
+      navigate(`/cemetery/map-view?fullname=${search}&location=${result?.data.data[0].CMTRY_LOC}`);
+
     }
 
   }, [result]);

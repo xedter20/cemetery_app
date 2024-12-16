@@ -29,12 +29,12 @@ export const LoginPage = () => {
       if (response?.data?.status == 200) {
         const user = getUser();
         console.log({ user })
-        if (user?.accountType) {
+        if (user?.accountType !== 'guest') {
 
-          console.log("Dex");
+
           navigate("/cemetery/admin/dashboard");
         } else {
-          //navigate(ROUTE_FINDER);
+          navigate(ROUTE_FINDER);
         }
       }
     });

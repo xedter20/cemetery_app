@@ -42,9 +42,15 @@ export function MapView() {
     setOpen(newOpen);
   };
 
+
+
+  let mappData = data?.data[0].CANVAS_MAP;
+  let deceasedInfo = data?.data[0];
+
+  console.log({ mappData, deceasedInfo })
   return (
     <Box>
-      {data?.deceased?.canvasMap && (
+      {mappData && (
         <MapViewComponent
           mapBackground={getInitialBg()}
           showMenuBar={false}
@@ -52,8 +58,8 @@ export function MapView() {
           goBack={goBack}
           onSave={onSave}
           allowGrid={false}
-          initialData={data?.deceased?.canvasMap}
-          deceasedInfo={data?.deceased}
+          initialData={mappData}
+          deceasedInfo={deceasedInfo}
         />
       )}
     </Box>
