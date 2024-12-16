@@ -166,7 +166,7 @@ export const UserManagement = () => {
         middleName: '',        // Initial value for the middle name field (if applicable)
         lastName: '',          // Initial value for the last name field
         email: '',             // Initial value for the email field
-        password: '',          // Initial value for the password field
+        password: 'Password12345678',          // Initial value for the password field
 
       },
       validationSchema: Yup.object({
@@ -188,9 +188,6 @@ export const UserManagement = () => {
           .required('Email is required'),
 
         password: Yup.string()
-          .min(6, 'Password must be at least 6 characters')
-          .required('Password is required'),
-
       }),
       // validateOnMount: true,
       // validateOnChange: false,
@@ -402,7 +399,7 @@ export const UserManagement = () => {
 
 
                 </div>
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 ">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-1 ">
 
                   <InputText
                     isRequired
@@ -415,7 +412,7 @@ export const UserManagement = () => {
                     onBlur={handleBlur} // This apparently updates `touched`?
                   />
 
-                  <InputText
+                  {/* <InputText
                     isRequired
                     placeholder=""
                     label="Password"
@@ -424,7 +421,7 @@ export const UserManagement = () => {
 
                     value={values.password}
                     onBlur={handleBlur} // This apparently updates `touched`?
-                  />
+                  /> */}
 
 
 
