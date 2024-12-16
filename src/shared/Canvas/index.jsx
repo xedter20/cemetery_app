@@ -515,7 +515,7 @@ export const CemeteryCanvas = ({
                 }}
               >
                 <Stack direction={"column"} textAlign={"center"}>
-                  <Typography variant="h6">{`${deceasedInfo?.firstName} ${deceasedInfo?.middleName}. ${deceasedInfo?.lastName}`}</Typography>
+                  <Typography variant="h6">{`${deceasedInfo?.FNAME} ${deceasedInfo?.MNAME}. ${deceasedInfo?.LNAME}`}</Typography>
                   <Typography variant="body2">NAME</Typography>
                 </Stack>
               </Box>
@@ -537,7 +537,7 @@ export const CemeteryCanvas = ({
                 >
                   <Stack direction={"column"} textAlign={"center"}>
                     <Typography variant="body1">BORN</Typography>
-                    <Typography variant="h6">{deceasedInfo?.born}</Typography>
+                    <Typography variant="h6">{deceasedInfo?.BORN}</Typography>
                   </Stack>
                 </Box>
                 <Box
@@ -546,7 +546,7 @@ export const CemeteryCanvas = ({
                 >
                   <Stack direction={"column"} textAlign={"center"}>
                     <Typography variant="body1">DIED</Typography>
-                    <Typography variant="h6">{deceasedInfo?.died}</Typography>
+                    <Typography variant="h6">{deceasedInfo?.DIED}</Typography>
                   </Stack>
                 </Box>
               </Box>
@@ -565,7 +565,7 @@ export const CemeteryCanvas = ({
                 <Stack direction={"column"} textAlign={"center"}>
                   <Typography variant="body1">Layer of niche</Typography>
                   <Typography variant="h6">
-                    Layer {deceasedInfo?.layerNiche}
+                    Layer {deceasedInfo?.LAYER_NICHE}
                   </Typography>
                 </Stack>
               </Box>
@@ -584,7 +584,7 @@ export const CemeteryCanvas = ({
                 <Stack direction={"column"} textAlign={"center"}>
                   <Typography variant="body1">Cemetery Location</Typography>
                   <Typography variant="h6">
-                    {deceasedInfo?.cemeteryLocation}
+                    {deceasedInfo?.CMTRY_LOC}
                   </Typography>
                 </Stack>
               </Box>

@@ -23,10 +23,26 @@ export function MapView() {
 
   const getInitialBg = () => {
     const location = searchParams.get("location");
-    const isBanBan = location.toLowerCase().includes("ban ban");
-    const isPoblascion = location.toLowerCase().includes("old poblacion");
-    const isEastVelencia = location.toLowerCase().includes("east valencia");
+    const isBanBan = location.toLowerCase().includes("ban ban")
 
+      ||
+
+      location === "Banban Cemetery"
+      ;
+    const isPoblascion = location.toLowerCase().includes("old poblacion") ||
+
+      location === "Poblacion Cemetery"
+      ;
+    const isEastVelencia = location.toLowerCase().includes("east valencia")
+
+
+      ||
+
+      location === "East Valencia Cemetery"
+      ;
+
+
+    console.log({ location, isBanBan, isPoblascion, isEastVelencia })
     if (isBanBan) {
       return map_banban;
     } else if (isEastVelencia) {
