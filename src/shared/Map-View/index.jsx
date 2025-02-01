@@ -72,7 +72,7 @@ export function MapViewComponent({
   }, {});
 
 
-  console.log({ mappedData })
+  //console.log({ mappedData })
 
   return mappedData && (mappedData.deceasedId) && (
     <Grid2>
