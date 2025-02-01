@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Grid2, Stack, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
-import Button from "@mui/material/Button";
+
 import LOGO from "../../assets/Buenavista-sm.png";
 import BG from "../../assets/main-bg.jpg";
 import { useNavigate } from "react-router-dom";
@@ -26,36 +26,124 @@ import {
 import { useLazyClientSearchDeceasedQuery } from "../../service/clientService";
 import { resetStorage } from "../../utility";
 
+
+
+import { format } from "date-fns";
+
+
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
+import { CalendarIcon, Filter, X } from "lucide-react"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Button } from "@/components/ui/button"
+
+
+import axios from 'axios';
+
+
+import { ROUTE_GUEST_MAP_SETTING } from "./../../constants";
+
+
+const mockData = [
+  {
+    id: "1",
+    firstName: "John",
+    middleName: "Robert",
+    lastName: "Doe",
+    dateOfDeath: "2022-05-15",
+    cemetery: "Green Hills Memorial",
+  },
+  {
+    id: "2",
+    firstName: "Jane",
+    middleName: "Marie",
+    lastName: "Smith",
+    dateOfDeath: "2023-01-22",
+    cemetery: "Oakwood Cemetery",
+  },
+  {
+    id: "3",
+    firstName: "Michael",
+    middleName: "James",
+    lastName: "Johnson",
+    dateOfDeath: "2021-11-30",
+    cemetery: "Riverside Cemetery",
+  },
+  {
+    id: "4",
+    firstName: "Emily",
+    middleName: "Rose",
+    lastName: "Williams",
+    dateOfDeath: "2023-03-10",
+    cemetery: "Green Hills Memorial",
+  },
+  {
+    id: "5",
+    firstName: "David",
+    middleName: "Lee",
+    lastName: "Brown",
+    dateOfDeath: "2022-09-05",
+    cemetery: "Oakwood Cemetery",
+  },
+  {
+    id: "6",
+    firstName: "Sarah",
+    middleName: "Elizabeth",
+    lastName: "Jones",
+    dateOfDeath: "2023-02-18",
+    cemetery: "Riverside Cemetery",
+  },
+  {
+    id: "7",
+    firstName: "Robert",
+    middleName: "Thomas",
+    lastName: "Wilson",
+    dateOfDeath: "2021-07-12",
+    cemetery: "Green Hills Memorial",
+  },
+  {
+    id: "8",
+    firstName: "Jennifer",
+    middleName: "Ann",
+    lastName: "Taylor",
+    dateOfDeath: "2022-12-03",
+    cemetery: "Oakwood Cemetery",
+  },
+  {
+    id: "9",
+    firstName: "William",
+    middleName: "George",
+    lastName: "Anderson",
+    dateOfDeath: "2023-04-25",
+    cemetery: "Riverside Cemetery",
+  },
+  {
+    id: "10",
+    firstName: "Lisa",
+    middleName: "Marie",
+    lastName: "Martin",
+    dateOfDeath: "2021-10-08",
+    cemetery: "Green Hills Memorial",
+  },
+];
+
+const cemeteries = [
+  "Banban", "East-Valencia", "Old Poblacion"
+];
+
+
+
+
 export const Finder = () => {
   const [search, setSearch] = React.useState();
   const [searchDeased, result] = useLazyClientSearchDeceasedQuery(search);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
-
-  useEffect(() => {
-    if (result.error) {
-      if (result.error.status == 401) {
-        resetStorage();
-        navigate(ROUTE_LOGIN)
-      }
-    }
-
-
-    console.log(result);
-
-    if (result?.data?.success) {
-
-      navigate(`/cemetery/map-view?fullname=${search}&location=${result?.data.data[0].CMTRY_LOC}`);
-
-    }
-
-  }, [result]);
-
-  const onSearch = (value) => {
-    setSearch(value)
-    searchDeased(value);
-  };
 
   const onModalMenuClick = (id) => {
     switch (id) {
@@ -77,16 +165,92 @@ export const Finder = () => {
         break;
     }
   };
-  const availableNames = [
-    "Juan Dela Cruz",
-    "Maria Clara",
-    "José Rizal",
-    "Andres Bonifacio",
-    "Emilio Aguinaldo",
-    "Apolinario Mabini"
-  ];
 
-  return (
+
+
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedFilters, setSelectedFilters] = useState(["firstName", "lastName"])
+  const [selectedCemetery, setSelectedCemetery] = useState(null)
+  const [dateOfDeath, setDateOfDeath] = useState()
+  const [filteredResults, setFilteredResults] = useState([])
+
+  const [isLoaded, setIsLoaded] = useState(false)
+
+
+  const [deceasedList, setDeceasedList] = useState([]);
+  const fetchAllDeceased = async () => {
+    let res = await axios({
+      method: 'get',
+      url: 'deceased/list'
+    });
+
+    let data = res.data.data
+
+    let mappedData = data.map((data) => {
+      return {
+        id: data.DECEASED_ID,
+        firstName: data.FNAME,
+        middleName: data.MNAME,
+        lastName: data.LNAME,
+        dateOfDeath: data.DIED,
+        cemetery: data.CMTRY_LOC,
+        place: data.CMTRY_LOC,
+      }
+    })
+    setDeceasedList(mappedData)
+
+
+    setIsLoaded(true)
+  }
+
+
+  useEffect(() => {
+    fetchAllDeceased()
+
+  }, [])
+
+
+  const handleFilterToggle = (filter) => {
+    setSelectedFilters((prev) => (prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]))
+  }
+
+  const clearAllFilters = () => {
+    setSearchTerm("")
+    setSelectedFilters(["firstName", "lastName"])
+    setSelectedCemetery(null)
+    setDateOfDeath(undefined)
+  }
+
+  const filterResults = useMemo(() => {
+    return (searchTerm) => {
+      if (!searchTerm.trim()) return []
+      return deceasedList.filter((record) => {
+        const matchesSearch = selectedFilters.some((filter) =>
+          record[filter].toLowerCase().includes(searchTerm.toLowerCase()),
+        )
+        const matchesCemetery = !selectedCemetery || record.cemetery === selectedCemetery
+        const matchesDate = !dateOfDeath || record.dateOfDeath === format(dateOfDeath, "yyyy-MM-dd")
+        return matchesSearch && matchesCemetery && matchesDate
+      })
+    }
+  }, [selectedFilters, selectedCemetery, dateOfDeath, deceasedList])
+
+  useEffect(() => {
+
+    console.log({ deceasedList })
+    const results = filterResults(searchTerm)
+    setFilteredResults(results)
+  }, [searchTerm, filterResults, deceasedList])
+
+  const onEditRoutes = (data) => {
+
+    // const url = `${ROUTE_GUEST_MAP_SETTING}?id=${data.id}&location=${data.place}`;
+
+    // // Open the URL in a new tab
+    // window.open(url, "_blank");
+  };
+
+  return isLoaded && (
     <Paper
       sx={{
         background: "black",
@@ -174,21 +338,116 @@ export const Finder = () => {
             >
               (OLD POBLACION | EAST VALENCIA | BANBAN CEMETERY)
             </Typography>
+
           </Stack>
+          <Card className="w-full max-w-3xl mx-auto">
+            <CardHeader>
+              <CardTitle>Cemetery Records Search</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex space-x-2">
+                  <Input
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Enter search term"
+                    className="flex-grow"
+                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline">
+                        <Filter className="h-4 w-4 mr-2" />
+                        Filters
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80">
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-sm font-medium">Filters</Label>
+                          <Button variant="ghost" size="sm" onClick={clearAllFilters}>
+                            <X className="h-4 w-4 mr-2" />
+                            Clear All
+                          </Button>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium">Search in:</Label>
+                          <div className="mt-2 space-y-2">
+                            {["firstName", "middleName", "lastName"].map((filter) => (
+                              <div key={filter} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={filter}
+                                  checked={selectedFilters.includes(filter)}
+                                  onCheckedChange={() => handleFilterToggle(filter)}
+                                />
+                                <Label htmlFor={filter} className="capitalize">
+                                  {filter.replace(/([A-Z])/g, " $1").trim()}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium">Cemetery:</Label>
+                          <RadioGroup value={selectedCemetery || ""} onValueChange={setSelectedCemetery} className="mt-2">
+                            {cemeteries.map((cemetery) => (
+                              <div key={cemetery} className="flex items-center space-x-2">
+                                <RadioGroupItem value={cemetery} id={cemetery} />
+                                <Label htmlFor={cemetery}>{cemetery}</Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium">Date of Death:</Label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className={`w-full justify-start text-left font-normal mt-2 ${!dateOfDeath && "text-muted-foreground"}`}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {dateOfDeath ? format(dateOfDeath, "PPP") : <span>Pick a date</span>}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar mode="single" selected={dateOfDeath} onSelect={setDateOfDeath} initialFocus />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  {searchTerm.trim() === "" ? (
+                    <p className="text-center text-gray-500">Enter a search term to see results</p>
+                  ) : filteredResults.length === 0 ? (
+                    <p className="text-center text-gray-500">No results found</p>
+                  ) : (
+                    filteredResults.map((record) => (
+                      <Card key={record.id}
+                        onClick={() => {
 
-          <Grid2 container size={12} justifyContent={"start"}>
-            <Box sx={{ width: "80%" }}>
-              <SearchTextField
+                          const url = `${ROUTE_GUEST_MAP_SETTING}?id=${record.id}&location=${record.place}`;
 
-                onSearch={onSearch}
-                setErrorMessage={setErrorMessage}
-                names={availableNames} // Pass the list of names to the component
-              />
-              {errorMessage && (
-                <Typography color="error" variant="body1" sx={{ fontWeight: 600, marginTop: '3px' }}>*{errorMessage}</Typography>
-              )}
-            </Box>
-          </Grid2>
+                          // Open the URL in a new tab
+                          window.open(url, "_blank");
+                        }}
+
+                      >
+                        <CardContent className="p-4">
+                          <h3 className="font-semibold">{`${record.firstName} ${record.middleName} ${record.lastName}`}</h3>
+                          <p className="text-sm text-gray-500">{`Date of Death: ${record.dateOfDeath}`}</p>
+                          <p className="text-sm text-gray-500">{`Cemetery: ${record.cemetery}`}</p>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
         </Grid2>
       </Box>
       <ModalMenu open={open} handleClick={(id) => onModalMenuClick(id)} />

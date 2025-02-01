@@ -70,7 +70,7 @@ export const Profiling = () => {
   const navigate = useNavigate();
   //const { data, isLoading, isSuccess, error } = useAdminFetchDeceasedQuery();
   const [addDeceased] = useAdminAddDeceasedMutation()
-  const [searchDeased, result] = useLazyAdminFetchDeceasedQuery();
+  const [searchDeased, result, isLoading, isSuccess, error] = useLazyAdminFetchDeceasedQuery();
 
   console.log({ result });
 
@@ -167,9 +167,10 @@ export const Profiling = () => {
 
   const onEditRoutes = (data) => {
     console.log("onEditPins", data);
-    navigate(
-      `${ROUTE_ADMIN_MAPPING}?id=${data.id}&location=${data.place}`
-    );
+    const url = `${ROUTE_ADMIN_MAPPING}?id=${data.id}&location=${data.place}`;
+
+    // Open the URL in a new tab
+    window.open(url, "_blank");
   };
 
   const onPageChange = (value) => {
@@ -307,27 +308,41 @@ export const Profiling = () => {
 
     return {
       initialValues: {
-        payeeFirstName: viewedData.payeeFirstName,
-        payeeLastName: viewedData.payeeLastName,
+        id: viewedData.id,
         firstName: viewedData.firstName,
         lastName: viewedData.lastName,
-        born: '',
-        yearsPaid: '',
+        middleName: viewedData.middleName,
+        suffix: viewedData.suffix,
+        address: viewedData.address,
+        born: viewedData.born,
+        died: viewedData.died,
+        cemeteryLocation: viewedData.cemeteryLocation,
+        datePermit: viewedData.datePermit,
+        natureApp: viewedData.natureApp,
+        layerNiche: viewedData.layerNiche,
+        layerAddress: viewedData.layerAddress,
+        payeeLastName: viewedData.payeeLastName,
+        payeeFirstName: viewedData.payeeFirstName,
+        payeeMiddleName: viewedData.payeeMiddleName,
+        payeeSuffix: viewedData.payeeSuffix,
+        payeeContact: viewedData.payeeContact,
+        payeeEmail: viewedData.payeeEmail,
+        payeeAddress: viewedData.payeeAddress,
         permitNumber: '',
         ORNumber: '',
         Amount: '',
       },
       validationSchema: Yup.object({
-        born: Yup.date().required('Date Paid is required'),
-        yearsPaid: Yup.number()
-          .required('Number of Years Paid is required')
-          .positive('Must be a positive number')
-          .integer('Must be an integer'),
-        permitNumber: Yup.string().required('Permit # is required'),
-        ORNumber: Yup.string().required('OR # is required'),
-        Amount: Yup.number()
-          .required('Amount is required')
-          .positive('Must be a positive number'),
+        // born: Yup.date().required('Date Paid is required'),
+        // yearsPaid: Yup.number()
+        //   .required('Number of Years Paid is required')
+        //   .positive('Must be a positive number')
+        //   .integer('Must be an integer'),
+        // permitNumber: Yup.string().required('Permit # is required'),
+        // ORNumber: Yup.string().required('OR # is required'),
+        // Amount: Yup.number()
+        //   .required('Amount is required')
+        //   .positive('Must be a positive number'),
 
       }),
       // validateOnMount: true,
@@ -342,16 +357,13 @@ export const Profiling = () => {
         let deceasedId = viewedData.deceasedId;
 
         try {
-          let res = await axios({
-            method: 'POST',
-            url: 'payments/create',
-            data: {
-              ...values,
-              deceasedId: viewedData.deceasedId
-            }
-          });
 
-          toast.success('Added Successfully!', {
+          let res = await axios({
+            method: 'put',
+            url: `deceased/update/${deceasedId}`,
+            data: values
+          });
+          toast.success('Updated Successfully!', {
             position: "top-right",
             autoClose: 1000,
             hideProgressBar: false,
@@ -363,9 +375,31 @@ export const Profiling = () => {
             // transition: Bounce,
           });
           searchDeased();
-          resetForm();
-          // setOpenCreateAccount(false)
-          document.getElementById('addPaymentModal').close();
+          document.getElementById('addDeceasedModal').close();
+          // let res = await axios({
+          //   method: 'POST',
+          //   url: 'payments/create',
+          //   data: {
+          //     ...values,
+          //     deceasedId: viewedData.deceasedId
+          //   }
+          // });
+
+          // toast.success('Added Successfully!', {
+          //   position: "top-right",
+          //   autoClose: 1000,
+          //   hideProgressBar: false,
+          //   closeOnClick: true,
+          //   pauseOnHover: true,
+          //   draggable: true,
+          //   progress: undefined,
+          //   theme: "light",
+          //   // transition: Bounce,
+          // });
+          // searchDeased();
+          // resetForm();
+          // // setOpenCreateAccount(false)
+          // document.getElementById('addPaymentModal').close();
 
         } catch (error) {
 
@@ -377,16 +411,35 @@ export const Profiling = () => {
     };
   };
 
-  return (
+
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    if (result.status === "fulfilled") {
+      setIsLoaded(true)
+
+    }
+  }, [isLoading, isSuccess, error, result.isLoading, result.isSuccess, result.error]);
+
+
+
+  return isLoaded ?
     <Box>
-      {!addButtonDisabled && <Button
-        variant="contained"
-        onClick={() => document.getElementById('addDeceasedModal').showModal()}
-        // onClick={() => setOpenCreateAccount(true)}
-        startIcon={<AddIcon />}
-      >
-        Add Deceased
-      </Button>}
+
+
+      <div className="flex justify-between items-center bg-gray-100 p-5">
+        {!addButtonDisabled && <Button
+          variant="contained"
+          onClick={() => document.getElementById('addDeceasedModal').showModal()}
+          // onClick={() => setOpenCreateAccount(true)}
+          startIcon={<AddIcon />}
+        >
+          Add Deceased
+        </Button>}
+        <span className=" bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+          Total:  {(result?.data || []).length}
+        </span>
+      </div>
       {/* <BasicTable
         rows={result.data ?? []}
         columns={columns}
@@ -738,6 +791,8 @@ export const Profiling = () => {
                   isSubmitting
                 }) => {
 
+
+                  console.log({ errors })
                   return <Form className="">
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                       <InputText
@@ -846,15 +901,15 @@ export const Profiling = () => {
                           onBlur={handleBlur}
                           options={[
                             {
-                              label: "Poblacion Cemetery",
+                              label: "Old Poblacion Cemetery",
                               value: "Poblacion Cemetery"
                             },
                             {
-                              label: "Ban Ban Cemetery",
+                              label: "BanBan Cemetery",
                               value: "Ban Ban Cemetery"
                             },
                             {
-                              label: "BPEast Velencia Cemetery",
+                              label: "East Valencia Cemetery",
                               value: "East Velencia Cemetery"
                             }
                           ]}
@@ -1233,15 +1288,15 @@ export const Profiling = () => {
                           onBlur={handleBlur}
                           options={[
                             {
-                              label: "Poblacion Cemetery",
+                              label: "Old Poblacion Cemetery",
                               value: "Poblacion Cemetery"
                             },
                             {
-                              label: "Ban Ban Cemetery",
+                              label: "BanBan Cemetery",
                               value: "Ban Ban Cemetery"
                             },
                             {
-                              label: "BPEast Velencia Cemetery",
+                              label: "East Valencia Cemetery",
                               value: "East Velencia Cemetery"
                             }
                           ]}
@@ -1679,6 +1734,13 @@ export const Profiling = () => {
           </div> */}
         </div>
       </dialog>
-    </Box>
-  );
+      <ToastContainer />
+    </Box> : <div>
+      <div className="flex justify-center items-center h-20">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+
+    </div>
+
+
 };

@@ -40,8 +40,11 @@ import { BiEdit, BiSolidBank, BiMapPin, BiInfoCircle } from "react-icons/bi"; //
 
 import ReactToPrint from "react-to-print";
 
-import Calculator from './calculator';
+import PaymentCalculator from './PaymentCalculator';
 import { list } from "postcss";
+
+
+
 export default function PaymentInterface(props) {
 
   const mainContentRef = useRef();
@@ -307,6 +310,10 @@ export const Payments = () => {
 
   const [paymentList, setPaymentList] = useState([])
 
+  const [activePaymentList, setactivePaymentList] = useState([])
+
+  const [isLoaded, setIsLoaded] = useState(false)
+
   const [paymentListPerDeceased, setpaymentListPerDeceased] = useState({})
 
   const fetchAllDeceased = async () => {
@@ -352,6 +359,7 @@ export const Payments = () => {
     searchDeased()
     fetchAllDeceased()
     fetchAllPayments()
+    setIsLoaded(true)
 
   }, [])
 
@@ -377,6 +385,7 @@ export const Payments = () => {
   useEffect(() => {
     if (deceasedId) {
       payments()
+
     }
 
   }, [deceasedId])
@@ -423,10 +432,39 @@ export const Payments = () => {
 
 
           <button
-            onClick={() => {
-              //addPaymentModal
+            onClick={async () => {
+              //viewPaymentModal
               setViewedData(row.original);
-              document.getElementById('addPaymentModal').showModal();
+              document.getElementById('viewPaymentModal').showModal();
+
+
+
+              let deceasedId = row.original.DECEASED_ID;
+
+              let filteredDeceased = deceasedList.find(d => d.value === deceasedId)
+
+
+
+
+              setIsLoaded(false);
+              let res = await axios({
+                method: 'get',
+                url: `deceased/getPayments/${deceasedId}`,
+
+              });
+
+
+
+              setactivePaymentList(res.data.data);
+              // setFieldTouched('DECEASED_ID', true);
+              // setFieldValue('DECEASED_ID', deceasedId);
+              // setFieldValue('ADDED_BY', filteredDeceased.payeeName)
+
+
+              setdeceasedId(deceasedId);
+
+              setIsLoaded(true);
+
             }}
             className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg
              hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
@@ -484,27 +522,27 @@ export const Payments = () => {
         AMOUNT: '',
         ORDER_NO: '',
         PERMIT_NO: '',
-        DATE_PAID: '',
+        DATE_PAID: Date.now(),
         DECEASED_NAME: '',
-        NEXT_PAYMENT_DATE: paymentListPerDeceased?.NEXT_PAYMENT_DATE || ''
-
+        NEXT_PAYMENT_DATE: paymentListPerDeceased?.NEXT_PAYMENT_DATE || '',
+        PENDING_PAYMENTS_TO_SAVE: []
       },
       validationSchema: Yup.object({
 
 
         DECEASED_ID: Yup.string().required('Required'),
-        ADDED_BY: Yup.string().required('Required'),
-        NUM_YEARS_PAY: Yup.number().required('Required'),
-        AMOUNT_PER_YEAR: Yup.number().required('Required'),
-        ORDER_NO: Yup.string().required('Required'),
-        PERMIT_NO: Yup.string().required('Required'),
-        DATE_PAID: Yup.string().required('Required'),
+        // ADDED_BY: Yup.string().required('Required'),
+        // NUM_YEARS_PAY: Yup.number().required('Required'),
+        // AMOUNT_PER_YEAR: Yup.number().required('Required'),
+        // ORDER_NO: Yup.string().required('Required'),
+        // PERMIT_NO: Yup.string().required('Required'),
+        // DATE_PAID: Yup.string().required('Required'),
 
         // AMOUNT: Yup.number().required('Required')
       }),
       // validateOnMount: true,
       // validateOnChange: false,
-      onSubmit: async (values, { setFieldError, setSubmitting, resetForm }) => {
+      onSubmit: async (values, { setFieldTouched, setFieldValue, setFieldError, setSubmitting, resetForm }) => {
         setSubmitting(true);
 
 
@@ -519,59 +557,48 @@ export const Payments = () => {
 
         try {
 
-
-          const paymentDateRange = values.NEXT_PAYMENT_DATE.validityPeriod;
-
-          // Extract the last date from the range
-          const lastDateStr = paymentDateRange.split(" - ")[1];
+          setIsLoaded(false)
 
 
-          console.log({ lastDateStr })
-          // Parse the last date
-          const [month, day, year] = lastDateStr.split('/').map(num => parseInt(num, 10));
+          const paymentDateRange = (values.PENDING_PAYMENTS_TO_SAVE || []).sort((a, b) => b.SEQ_NO - a.SEQ_NO);
 
-          // Create a Date object for the last date
-          // Create a Date object for the last date
-          const lastDate = new Date(year, month - 1, day);
 
-          // Add one day to the last date (keeping the month and year unchanged)
-          lastDate.setDate(lastDate.getDate() + 1);
+          let NEXT_PAYMENT_DATE = paymentDateRange[0].NEXT_PAYMENT_DATE
 
-          // Format the next payment date to match the "MM/DD/YYYY" format
-          const NEXT_PAYMENT_DATE = `${lastDate.getMonth() + 1}/${lastDate.getDate()}/${lastDate.getFullYear()}`
 
-          console.log({ NEXT_PAYMENT_DATE }); // Output: "12/4/2026"
 
-          const nextPaymentDate = new Date(NEXT_PAYMENT_DATE);  // Example date
-
-          // Adjust to Manila time zone
-          const manilaDate = nextPaymentDate.toLocaleString('en-PH', {
-            timeZone: 'Asia/Manila',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-          }).split(',')[0];  // Extract the date part (YYYY-MM-DD)
-          // Now add the time '00:00:00' to the date
-          const date = new Date(manilaDate);
-          const formattedDate = date.getFullYear() + '-' +
-            (date.getMonth() + 1).toString().padStart(2, '0') + '-' +
-            date.getDate().toString().padStart(2, '0') + ' 00:00:00';
-
-          console.log(formattedDate);  // Output: "2026-12-16 00:00:00"tput: "2026-12-16 00:00:00"
-
+          // console.log({ NEXT_PAYMENT_DATE })
 
 
           let res = await axios({
             method: 'POST',
             url: 'payments/create',
-            data: { ...values, DECEASED_NAME, AMOUNT, NEXT_PAYMENT_DATE: formattedDate }
+            data: { ...values, DECEASED_NAME, AMOUNT, NEXT_PAYMENT_DATE: NEXT_PAYMENT_DATE }
           });
 
 
-          searchDeased()
-          fetchAllDeceased()
-          fetchAllPayments()
 
+          let deceasedId = values.DECEASED_ID;
+          let res2 = await axios({
+            method: 'get',
+            url: `deceased/getPayments/${deceasedId}`,
+
+          });
+
+
+
+          setFieldValue('NUM_YEARS_PAY', 0);
+          setactivePaymentList([])
+
+          setactivePaymentList(res2.data.data);
+          setFieldTouched('DECEASED_ID', true);
+          setFieldValue('DECEASED_ID', deceasedId);
+          // setFieldValue('ADDED_BY', filteredDeceased.payeeName)
+
+
+          setdeceasedId(deceasedId);
+
+          setIsLoaded(true)
           toast.success('Added Successfully!', {
             position: "top-right",
             autoClose: 1000,
@@ -584,11 +611,79 @@ export const Payments = () => {
             // transition: Bounce,
           });
 
-
-          searchDeased();
-          resetForm();
+          // searchDeased();
+          // resetForm();
+          // setactivePaymentList([])
           // setOpenCreateAccount(false)
           document.getElementById('addPayment').close();
+
+          // // Extract the last date from the range
+          // const lastDateStr = paymentDateRange.split(" - ")[1];
+
+
+          // console.log({ lastDateStr })
+          // // Parse the last date
+          // const [month, day, year] = lastDateStr.split('/').map(num => parseInt(num, 10));
+
+          // // Create a Date object for the last date
+          // // Create a Date object for the last date
+          // const lastDate = new Date(year, month - 1, day);
+
+          // // Add one day to the last date (keeping the month and year unchanged)
+          // lastDate.setDate(lastDate.getDate() + 1);
+
+          // // Format the next payment date to match the "MM/DD/YYYY" format
+          // const NEXT_PAYMENT_DATE = `${lastDate.getMonth() + 1}/${lastDate.getDate()}/${lastDate.getFullYear()}`
+
+          // console.log({ NEXT_PAYMENT_DATE }); // Output: "12/4/2026"
+
+          // const nextPaymentDate = new Date(NEXT_PAYMENT_DATE);  // Example date
+
+          // // Adjust to Manila time zone
+          // const manilaDate = nextPaymentDate.toLocaleString('en-PH', {
+          //   timeZone: 'Asia/Manila',
+          //   year: 'numeric',
+          //   month: '2-digit',
+          //   day: '2-digit',
+          // }).split(',')[0];  // Extract the date part (YYYY-MM-DD)
+          // // Now add the time '00:00:00' to the date
+          // const date = new Date(manilaDate);
+          // const formattedDate = date.getFullYear() + '-' +
+          //   (date.getMonth() + 1).toString().padStart(2, '0') + '-' +
+          //   date.getDate().toString().padStart(2, '0') + ' 00:00:00';
+
+          // console.log(formattedDate);  // Output: "2026-12-16 00:00:00"tput: "2026-12-16 00:00:00"
+
+
+
+          // let res = await axios({
+          //   method: 'POST',
+          //   url: 'payments/create',
+          //   data: { ...values, DECEASED_NAME, AMOUNT, NEXT_PAYMENT_DATE: formattedDate }
+          // });
+
+
+          // searchDeased()
+          // fetchAllDeceased()
+          // fetchAllPayments()
+
+          // toast.success('Added Successfully!', {
+          //   position: "top-right",
+          //   autoClose: 1000,
+          //   hideProgressBar: false,
+          //   closeOnClick: true,
+          //   pauseOnHover: true,
+          //   draggable: true,
+          //   progress: undefined,
+          //   theme: "light",
+          //   // transition: Bounce,
+          // });
+
+
+          // searchDeased();
+          // resetForm();
+          // // setOpenCreateAccount(false)
+          // document.getElementById('addPayment').close();
 
         } catch (error) {
 
@@ -674,7 +769,7 @@ export const Payments = () => {
           searchDeased();
           resetForm();
           // setOpenCreateAccount(false)
-          document.getElementById('addPaymentModal').close();
+          document.getElementById('viewPaymentModal').close();
 
         } catch (error) {
 
@@ -685,6 +780,14 @@ export const Payments = () => {
       }
     };
   };
+
+
+  useEffect(() => {
+    if (result.status === "fulfilled") {
+      setIsLoaded(true)
+
+    }
+  }, []);
 
   return (
     <Box>
@@ -1052,7 +1155,6 @@ export const Payments = () => {
                 isSubmitting
               }) => {
 
-                console.log({ dex: paymentListPerDeceased })
 
                 return <Form className="">
                   <div className="">
@@ -1074,19 +1176,37 @@ export const Payments = () => {
                           setFieldValue={setFieldValue}
                           onBlur={handleBlur}
                           options={deceasedList}
-                          functionToCalled={(deceasedId) => {
+                          functionToCalled={async (deceasedId) => {
 
 
                             let filteredDeceased = deceasedList.find(d => d.value === deceasedId)
 
-                            console.log({ filteredDeceased })
+
+
+
+                            setIsLoaded(false);
+                            let res = await axios({
+                              method: 'get',
+                              url: `deceased/getPayments/${deceasedId}`,
+
+                            });
+
+
+
+                            setactivePaymentList(res.data.data);
                             setFieldTouched('DECEASED_ID', true);
                             setFieldValue('DECEASED_ID', deceasedId);
                             setFieldValue('ADDED_BY', filteredDeceased.payeeName)
 
 
                             setdeceasedId(deceasedId);
-                            setFieldValue('DATE_PAID', new Date(paymentListPerDeceased.NEXT_PAYMENT_DATE).toISOString().split('T')[0])
+
+                            setIsLoaded(true);
+
+                            // if (paymentListPerDeceased && paymentListPerDeceased.NEXT_PAYMENT_DATE) {
+                            //   setFieldValue('DATE_PAID', new Date(paymentListPerDeceased.NEXT_PAYMENT_DATE).toISOString().split('T')[0])
+                            // }
+
 
                           }}
 
@@ -1101,10 +1221,12 @@ export const Payments = () => {
                       </div>
                       <div className="p-4">
                         <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                          Payee Name
+                          Payee Namesss
                         </label>
                         <InputText
                           isRequired
+                          disabled
+                          isReadOnly={true}
 
                           name="ADDED_BY"
                           type="text"
@@ -1119,15 +1241,15 @@ export const Payments = () => {
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                       <InputText
                         isRequired
-                        label="Payment Date"
+                        label=""
                         name="DATE_PAID"
-                        type="date"
+                        type="hidden"
                         value={values.DATE_PAID}
 
                         onBlur={handleBlur} // This apparently updates `touched`?
                       />
 
-                      <InputText
+                      {/* <InputText
                         isRequired
                         label="Permit #"
                         name="PERMIT_NO"
@@ -1154,19 +1276,27 @@ export const Payments = () => {
                         //   }))
                         // }
                         onBlur={handleBlur} // This apparently updates `touched`?
-                      />
+                      /> */}
 
 
 
 
                     </div>
+                    {
+                      isLoaded ? <PaymentCalculator
+                        viewedData={viewedData}
+                        isViewOnly={false}
+                        setFieldValue={setFieldValue}
+                        values={values}
+                        handleBlur={handleBlur}
+                        activePaymentList={activePaymentList}
+                        deceasedList={deceasedList}
 
-                    <Calculator
-                      setFieldValue={setFieldValue}
-                      values={values}
-                      handleBlur={handleBlur}
+                      /> : <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+                      </div>
 
-                    />
+                    }
 
 
 
@@ -1183,28 +1313,35 @@ export const Payments = () => {
 
 
                     </div> */}
-                    <div className="modal-action">
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className={
-                          'btn mt-4 shadow-lg  bg-blue-700 font-bold text-white flex justify-center items-center'
 
-                        }>
-                        {isSubmitting ? (
-                          <div><span className="spinner-border animate-spin inline-block w-4 h-4 border-2 rounded-full"></span> Processing </div>
-                        ) : (
-                          'Submit'
-                        )}
-                      </button>
-                      <button className="btn mt-4" onClick={(e) => {
-                        e.preventDefault();
-                        setViewedData({})
-                        document.getElementById('addPayment').close();
-                      }}>
-                        Close
-                      </button>
-                    </div>
+                    {
+                      values.NUM_YEARS_PAY && values.AMOUNT_PER_YEAR && values.PERMIT_NO && values.ORDER_NO ?
+
+                        <div className="modal-action">
+                          <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className={
+                              'btn mt-4 shadow-lg  bg-blue-700 font-bold text-white flex justify-center items-center'
+
+                            }>
+                            {isSubmitting ? (
+                              <div><span className="spinner-border animate-spin inline-block w-4 h-4 border-2 rounded-full"></span> Processing </div>
+                            ) : (
+                              'Submit'
+                            )}
+                          </button>
+                          <button className="btn mt-4" onClick={(e) => {
+                            e.preventDefault();
+                            setViewedData({})
+                            document.getElementById('addPayment').close();
+                          }}>
+                            Close
+                          </button>
+                        </div> : <div></div>
+
+
+                    }
 
                   </div>
 
@@ -1245,148 +1382,80 @@ export const Payments = () => {
         </div>
       </dialog>
 
-      <dialog id="addPaymentModal" className="modal">
-        <div className="modal-box w-11/12 max-w-3xl">
+      <dialog id="viewPaymentModal" className="modal">
+        <div className="modal-box w-11/12 max-w-5xl">
 
           {/* if there is a button in form, it will close the modal */}
           <button
             onClick={() => {
               setViewedData({});
-              document.getElementById("addPaymentModal").close();
+              document.getElementById("viewPaymentModal").close();
             }}
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 mb-4">✕</button>
 
           <div className="modal-header flex items-center justify-between p-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-t-lg">
-            <h1 className="text-xl font-semibold">Details</h1>
+            <h1 className="text-xl font-semibold">Payment Details</h1>
+            {/* <ReactToPrint
+              trigger={() => <button className="mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded">Print Table</button>}
+              content={() => this.tableRef}
+            /> */}
+
 
           </div>
-          <div className="p-2 space-y-4 md:space-y-6 sm:p-4">
+
+          <Formik {...formikConfig()}>
+            {({
+              handleSubmit,
+              handleChange,
+              handleBlur, // handler for onBlur event of form elements
+              values,
+              touched,
+              errors,
+              submitForm,
+              setFieldTouched,
+              setFieldValue,
+              setFieldError,
+              setErrors,
+              isSubmitting
+            }) => {
 
 
-            {viewedData.SEQ_NO &&
-              <Formik {...formikConfigUpdate(viewedData)}>
-                {({
-                  handleSubmit,
-                  handleChange,
-                  handleBlur, // handler for onBlur event of form elements
-                  values,
-                  touched,
-                  errors,
-                  submitForm,
-                  setFieldTouched,
-                  setFieldValue,
-                  setFieldError,
-                  setErrors,
-                  isSubmitting
-                }) => {
+              console.log({ values })
 
-                  return <Form className="">
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <div className="p-4">
-                        <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-                          Payee Name
-                        </label>
-                        <input
-                          id="firstName"
-                          type="text"
-                          value={`${values.ADDED_BY}`}
-                          disabled
-                          className="mt-2 p-3 w-full border border-gray-300 rounded-md bg-gray-200 text-gray-500 cursor-not-allowed focus:outline-none"
-                        />
-                      </div>
-                      <div className="p-4">
-                        <label htmlFor="firstNames" className="block text-sm font-medium text-gray-700">
-                          Name of the Deceased
-                        </label>
-                        <input
-                          id="DECEASED_NAME"
-                          type="text"
-                          value={`${values.DECEASED_NAME}`}
-                          disabled
-                          className="mt-2 p-3 w-full border border-gray-300 rounded-md bg-gray-200 text-gray-500 cursor-not-allowed focus:outline-none"
-                        />
-                      </div>
-                    </div>
+              return <Form id="table-container"
 
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              >
+                <div className="">
 
 
 
-                    </div>
-
-
-
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <InputText
-                        isRequired
-                        label="Permit #"
-                        name="permitNumber"
-                        type="text"
-                        value={values.PERMIT_NO}
-                        // onChange={(e) =>
-                        //   setFieldData((prev) => ({
-                        //     ...prev,
-                        //     datePermit: e.target.value,
-                        //   }))
-                        // }
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-                      <InputText
-                        isRequired
-                        label="OR #"
-                        name="ORDER_NO"
-                        type="text"
-                        value={values.ORDER_NO}
-                        // onChange={(e) =>
-                        //   setFieldData((prev) => ({
-                        //     ...prev,
-                        //     datePermit: e.target.value,
-                        //   }))
-                        // }
-                        onBlur={handleBlur} // This apparently updates `touched`?
-                      />
-
-
-
-
-                    </div>
-
-
-
-                    <Calculator
+                  {
+                    isLoaded ? <PaymentCalculator
+                      viewedData={viewedData}
+                      isViewOnly={true}
                       setFieldValue={setFieldValue}
                       values={values}
                       handleBlur={handleBlur}
+                      activePaymentList={activePaymentList}
+                      isReadOnly={true}
+                      deceasedList={deceasedList}
 
-                    />
+                    /> : <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+                    </div>
 
-                    {/* <div className="modal-action">
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className={
-                          'btn mt-4 shadow-lg  bg-blue-700 font-bold text-white flex justify-center items-center'
+                  }
 
-                        }>
-                        {isSubmitting ? (
-                          <div><span className="spinner-border animate-spin inline-block w-4 h-4 border-2 rounded-full"></span> Processing </div>
-                        ) : (
-                          'Submit'
-                        )}
-                      </button>
-                      <button className="btn mt-4" onClick={(e) => {
-                        e.preventDefault();
-                        setViewedData({})
-                        document.getElementById('addPaymentModal').close();
-                      }}>
-                        Close
-                      </button>
-                    </div> */}
 
-                  </Form>
-                }}
-              </Formik>}
-          </div>
+
+
+
+                </div>
+
+
+              </Form>
+            }}
+          </Formik>
           {/* <div className="modal-action">
             <form method="dialog">
          

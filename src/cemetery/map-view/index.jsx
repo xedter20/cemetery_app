@@ -6,9 +6,10 @@ import { useClientSearchDeceasedQuery } from "../../service/clientService";
 import { MapViewComponent } from "../../shared/Map-View";
 import { useSearchParams } from "react-router-dom";
 
-import map_banban from "../../assets/map_banban.png";
-import map_poblacion from "../../assets/map_poblacion.png";
-import map_east_valencia from "../../assets/EAST_VALENCIA_MAP.png";
+import map_banban from "./../../assets/FORMAPPING/Banban.png";
+import map_poblacion from "./../../assets/FORMAPPING/Old-Poblacion.png";
+import map_east_valencia from "./../../assets/FORMAPPING/East-Valencia.png";
+
 import { Box, Button, IconButton, Stack } from "@mui/material";
 import React, { useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
@@ -66,18 +67,18 @@ export function MapView() {
   console.log({ mappData, deceasedInfo })
   return (
     <Box>
-      {mappData && (
-        <MapViewComponent
-          mapBackground={getInitialBg()}
-          showMenuBar={false}
-          menuBarTitle=""
-          goBack={goBack}
-          onSave={onSave}
-          allowGrid={false}
-          initialData={mappData}
-          deceasedInfo={deceasedInfo}
-        />
-      )}
+
+      <MapViewComponent
+        mapBackground={getInitialBg()}
+        showMenuBar={false}
+        menuBarTitle=""
+        goBack={goBack}
+        onSave={onSave}
+        allowGrid={false}
+        initialData={mappData}
+        deceasedInfo={deceasedInfo}
+      />
+
     </Box>
   );
 }

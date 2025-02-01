@@ -23,7 +23,8 @@ import {
   ROUTE_MAP_VIEW,
   ROUTE_REGISTRATION,
   TRESURER,
-  ROUTE_ADMIN_PAYMENTS
+  ROUTE_ADMIN_PAYMENTS,
+  ROUTE_GUEST_MAP_SETTING
 } from './constants';
 import {
   getToken,
@@ -164,6 +165,16 @@ const appRoutes = [
       </AdminProtectedRoutes>
     )
   },
+
+  {
+    path: ROUTE_GUEST_MAP_SETTING,
+    element: (
+      <AdminProtectedRoutes permission="canViewMapping">
+        <MapSetting />
+      </AdminProtectedRoutes>
+    )
+  },
+
   {
     path: ROUTE_ADMIN_MAPPING,
     element: (

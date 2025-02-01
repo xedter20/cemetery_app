@@ -8,6 +8,8 @@ export const ROUTE_LOGIN = '/';
 export const ROUTE_ADMIN_LOGIN = '/cemetery/admin/login';
 export const ROUTE_ADMIN_MAP_SETTING = '/cemetery/admin/map-setting';
 
+export const ROUTE_GUEST_MAP_SETTING = '/cemetery/guest/map-setting';
+
 export const ROUTE_ADMIN_MAPPING = '/cemetery/admin/map-setting';
 export const ROUTE_ADMIN = '/cemetery/admin';
 export const ROUTE_ADMIN_USER_MANAGEMENT = 'user-management';

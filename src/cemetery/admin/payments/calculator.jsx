@@ -5,14 +5,22 @@ import InputText from '../../../components/Input/InputText';
 export default function CemeteryRentCalculator({
   setFieldValue,
   values,
-  handleBlur
+  handleBlur,
+  activePaymentList = []
 }) {
 
-  console.log({ values })
+
+  console.log({ activePaymentList })
+
+  let hasActivePaymentList = activePaymentList[0];
+
   const [years, setYears] = useState(values.NUM_YEARS_PAY || 1)
   const [amount, setAmount] = useState(values.AMOUNT_PER_YEAR || 100)
   const [tableData, setTableData] = useState([])
   const [grandTotal, setGrandTotal] = useState(0)
+
+
+
   useEffect(() => {
     const currentDate = new Date(values.DATE_PAID);
     const data = Array.from({ length: years }, (_, index) => {

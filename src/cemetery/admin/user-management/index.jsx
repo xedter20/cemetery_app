@@ -39,49 +39,7 @@ export const UserManagement = () => {
     password: "",
   });
 
-  const columns = [
-    {
-      title: "id",
-      dataIndex: "id",
-      key: "id",
-    },
-    {
-      title: "First Name",
-      dataIndex: "firstName",
-      key: "firstName",
-    },
-    {
-      title: "Last Name",
-      dataIndex: "lastName",
-      key: "lastName",
-    },
-    {
-      title: "User Name",
-      dataIndex: "userName",
-      key: "userName",
-    },
-    {
-      title: "Position",
-      dataIndex: "position",
-      key: "position",
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (record) => (
-        <Box>
-          <Button
-            disabled
-            size="small"
-            variant="contained"
-            onClick={() => onAction(record)}
-          >
-            Edit
-          </Button>
-        </Box>
-      ),
-    },
-  ];
+
 
   const onAction = (data) => {
     console.log("onAction", data);
@@ -248,7 +206,16 @@ export const UserManagement = () => {
     };
   };
 
-  return (
+  const [isLoaded, setIsLoaded] = useState(false);
+  useEffect(() => {
+    if (result.status === "fulfilled") {
+      setIsLoaded(true)
+
+    }
+  }, [result]);
+
+
+  return isLoaded ?
     <Box>
       <Button
         className="mb-4 bg-green-200 mt-4"
@@ -501,5 +468,10 @@ export const UserManagement = () => {
       </Formik>
       <ToastContainer />
     </Box>
-  );
+    : <div>
+      <div className="flex justify-center items-center h-20">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+
+    </div>
 };

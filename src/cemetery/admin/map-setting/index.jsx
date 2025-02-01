@@ -9,21 +9,26 @@ import {
 } from "../../../service/adminService";
 import { base64ToString } from "../../../utility";
 import { MapViewComponent } from "../../../shared/Map-View";
-import map_banban from "../../../assets/map_banban.png";
-import map_poblacion from "../../../assets/map_poblacion.png";
-import map_east_valencia from "../../../assets/EAST_VALENCIA_MAP.png";
-
+import map_banban from "../../../assets/FORMAPPING/Banban.png";
+import map_poblacion from "../../../assets/FORMAPPING/Old-Poblacion.png";
+import map_east_valencia from "../../../assets/FORMAPPING/East-Valencia.png";
+import { ToastContainer, toast } from 'react-toastify';
 export function MapSetting() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [base64Data, setBase64Data] = useState(null);
   const [searchParams] = useSearchParams();
   const [initialData, setInitialData] = useState();
+
+  const [isLoaded, setisLoaded] = useState(false);
+
   const [patchCall, { error, isLoading }] = useAdminPatchDeceasedByIdMutation();
   const { data } = useAdminFetchDeceasedByIdQuery(searchParams.get("id"));
 
   const goBack = () => {
-    navigate(-1);
+
+    console.log("Dex")
+    navigate("/cemetery/admin/profiling");
   };
 
   useEffect(() => {
@@ -37,6 +42,8 @@ export function MapSetting() {
           dots: [getInitialEntrance()],
         })
       );
+
+      setisLoaded(true)
     }
   }, [data]);
 
@@ -86,13 +93,26 @@ export function MapSetting() {
       canvasMap: JSON.stringify(base64Data),
     });
     if (response.data) {
-      navigate(-1);
+
+      toast.success('Saved Successfully!', {
+        position: "top-right",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        // transition: Bounce,
+      });
+
+      // navigate(-1);
     }
   };
 
   console.log("data", data);
 
-  return (
+  return isLoaded && (
     <>
       <MapViewComponent
         mapBackground={getInitialBg()}
@@ -104,21 +124,9 @@ export function MapSetting() {
         initialData={initialData}
         deceasedInfo={data?.deceased}
       />
-      <CustomModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        onOk={() => confirm()}
-        onCancel={() => setShowModal(false)}
-      >
-        <>
-          <Box sx={{ padding: "1rem" }}>
-            <Typography variant="h5">Save Routes</Typography>
-            <Typography variant="subtitle1">
-              Are you sure you want to save the map routes?
-            </Typography>
-          </Box>
-        </>
-      </CustomModal>
+
+
+      <ToastContainer />
     </>
   );
 }
