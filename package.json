@@ -49,7 +49,11 @@
     "vite": "^6.0.3",
     "web-vitals": "^4.2.4",
     "xlsx": "^0.18.5",
-    "yup": "^1.5.0"
+    "yup": "^1.5.0",
+    "@rollup/rollup-linux-x64-gnu": "^4.9.2"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.6.1"
   },
   "scripts": {
     "start": "vite",
