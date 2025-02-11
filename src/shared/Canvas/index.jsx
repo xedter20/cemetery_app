@@ -346,6 +346,17 @@ export const CemeteryCanvas = ({
     && user?.accountType !== 'enterprise';
   return <div className="flex">
     {/* Canvas on the left */}
+    <div className="flex flex-col justify-between p-4">
+      <DeceasedDetails
+        data={deceasedInfo}
+        handleSave={handleSave}
+        handleReset={handleReset}
+
+      />
+
+
+    </div>
+
     <div className="flex-1 relative">
       <canvas
         ref={canvasRef}
@@ -359,16 +370,7 @@ export const CemeteryCanvas = ({
     </div>
 
     {/* Deceased details and buttons on the right */}
-    <div className="flex flex-col justify-between p-4">
-      <DeceasedDetails
-        data={deceasedInfo}
-        handleSave={handleSave}
-        handleReset={handleReset}
 
-      />
-
-
-    </div>
     <ToastContainer />
   </div>
 
