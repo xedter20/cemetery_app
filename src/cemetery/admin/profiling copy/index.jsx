@@ -599,7 +599,7 @@ export const Profiling = () => {
                   <MenuItem value={"Banban Cemetery"}>
                     Banban Cemetery
                   </MenuItem>
-                  <MenuItem value={"East Velencia Cemetery"}>
+                  <MenuItem value={"East Valencia Cemetery"}>
                     East Valencia Cemetery
                   </MenuItem>
                 </Select>
@@ -884,7 +884,7 @@ export const Profiling = () => {
                   >
                     <option value="Old Poblacion Cemetery">Old Poblacion Cemetery</option>
                     <option value="Banban Cemetery">Banban Cemetery</option>
-                    <option value="East Velencia Cemetery">East Valencia Cemetery</option>
+                    <option value="East Valencia Cemetery">East Valencia Cemetery</option>
                   </InputSelect> */}
                       <div className="mt-2">
                         <Dropdown
@@ -906,8 +906,8 @@ export const Profiling = () => {
                               value: "Banban Cemetery"
                             },
                             {
-                              label: "BPEast Velencia Cemetery",
-                              value: "East Velencia Cemetery"
+                              label: "BPEast Valencia Cemetery",
+                              value: "East Valencia Cemetery"
                             }
                           ]}
                           functionToCalled={(value) => {
@@ -1271,7 +1271,7 @@ export const Profiling = () => {
                   >
                     <option value="Old Poblacion Cemetery">Old Poblacion Cemetery</option>
                     <option value="Banban Cemetery">Banban Cemetery</option>
-                    <option value="East Velencia Cemetery">East Valencia Cemetery</option>
+                    <option value="East Valencia Cemetery">East Valencia Cemetery</option>
                   </InputSelect> */}
                       <div className="mt-2">
                         <Dropdown
@@ -1293,8 +1293,8 @@ export const Profiling = () => {
                               value: "Banban Cemetery"
                             },
                             {
-                              label: "BPEast Velencia Cemetery",
-                              value: "East Velencia Cemetery"
+                              label: "BPEast Valencia Cemetery",
+                              value: "East Valencia Cemetery"
                             }
                           ]}
                           functionToCalled={(value) => {

@@ -225,7 +225,7 @@ export const About = () => {
             <Box>
               <Box>
                 <Typography color="white" variant="h5" fontWeight={800}>
-                  East Velencia Cemetery
+                  East Valencia Cemetery
                 </Typography>
               </Box>
               <Box sx={{ marginTop: 2, marginBottom: 2 }}>

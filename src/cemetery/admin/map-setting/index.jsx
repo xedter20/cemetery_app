@@ -51,7 +51,7 @@ export function MapSetting() {
     const location = searchParams.get("location");
     const isBanBan = location?.toLowerCase().includes("banban");
     const isPoblascion = location?.toLowerCase().includes("poblacion");
-    const isEastVelencia = location?.toLowerCase().includes("east velencia cemetery");
+    const isEastVelencia = location?.toLowerCase().includes("east valencia cemetery");
 
     console.log({ dex: location?.toLowerCase() })
 

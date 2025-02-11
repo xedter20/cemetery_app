@@ -959,7 +959,7 @@ export const Payments = () => {
                   <MenuItem value={"Banban Cemetery"}>
                     Banban Cemetery
                   </MenuItem>
-                  <MenuItem value={"East Velencia Cemetery"}>
+                  <MenuItem value={"East Valencia Cemetery"}>
                     East Valencia Cemetery
                   </MenuItem>
                 </Select>
