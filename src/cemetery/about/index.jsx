@@ -91,7 +91,7 @@ export const About = () => {
             <Box>
               <Box>
                 <Typography color="white" variant="h5" fontWeight={800}>
-                  Ban Ban Cemetery
+                  Banban Cemetery
                 </Typography>
               </Box>
               <Box sx={{ marginTop: 2, marginBottom: 2 }}>
@@ -154,7 +154,7 @@ export const About = () => {
                   textAlign={"right"}
                   fontWeight={800}
                 >
-                  Poblacion Cemetery
+                  Old Poblacion Cemetery
                 </Typography>
               </Box>
               <Box sx={{ marginTop: 2, marginBottom: 2 }}>

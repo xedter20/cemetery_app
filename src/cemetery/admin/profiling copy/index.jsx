@@ -593,10 +593,10 @@ export const Profiling = () => {
                     }))
                   }
                 >
-                  <MenuItem value={"Poblacion Cemetery"}>
-                    Poblacion Cemetery
+                  <MenuItem value={"Old Poblacion Cemetery"}>
+                    Old Poblacion Cemetery
                   </MenuItem>
-                  <MenuItem value={"Ban Ban Cemetery"}>
+                  <MenuItem value={"Banban Cemetery"}>
                     Banban Cemetery
                   </MenuItem>
                   <MenuItem value={"East Velencia Cemetery"}>
@@ -882,8 +882,8 @@ export const Profiling = () => {
                     }
                     onBlur={handleBlur}
                   >
-                    <option value="Poblacion Cemetery">Poblacion Cemetery</option>
-                    <option value="Ban Ban Cemetery">Banban Cemetery</option>
+                    <option value="Old Poblacion Cemetery">Old Poblacion Cemetery</option>
+                    <option value="Banban Cemetery">Banban Cemetery</option>
                     <option value="East Velencia Cemetery">East Valencia Cemetery</option>
                   </InputSelect> */}
                       <div className="mt-2">
@@ -898,12 +898,12 @@ export const Profiling = () => {
                           onBlur={handleBlur}
                           options={[
                             {
-                              label: "Poblacion Cemetery",
-                              value: "Poblacion Cemetery"
+                              label: "Old Poblacion Cemetery",
+                              value: "Old Poblacion Cemetery"
                             },
                             {
-                              label: "Ban Ban Cemetery",
-                              value: "Ban Ban Cemetery"
+                              label: "Banban Cemetery",
+                              value: "Banban Cemetery"
                             },
                             {
                               label: "BPEast Velencia Cemetery",
@@ -1269,8 +1269,8 @@ export const Profiling = () => {
                     }
                     onBlur={handleBlur}
                   >
-                    <option value="Poblacion Cemetery">Poblacion Cemetery</option>
-                    <option value="Ban Ban Cemetery">Banban Cemetery</option>
+                    <option value="Old Poblacion Cemetery">Old Poblacion Cemetery</option>
+                    <option value="Banban Cemetery">Banban Cemetery</option>
                     <option value="East Velencia Cemetery">East Valencia Cemetery</option>
                   </InputSelect> */}
                       <div className="mt-2">
@@ -1285,12 +1285,12 @@ export const Profiling = () => {
                           onBlur={handleBlur}
                           options={[
                             {
-                              label: "Poblacion Cemetery",
-                              value: "Poblacion Cemetery"
+                              label: "Old Poblacion Cemetery",
+                              value: "Old Poblacion Cemetery"
                             },
                             {
-                              label: "Ban Ban Cemetery",
-                              value: "Ban Ban Cemetery"
+                              label: "Banban Cemetery",
+                              value: "Banban Cemetery"
                             },
                             {
                               label: "BPEast Velencia Cemetery",

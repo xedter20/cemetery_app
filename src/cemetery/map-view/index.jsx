@@ -24,7 +24,7 @@ export function MapView() {
 
   const getInitialBg = () => {
     const location = searchParams.get("location");
-    const isBanBan = location.toLowerCase().includes("ban ban")
+    const isBanBan = location.toLowerCase().includes("Banban")
 
       ||
 
@@ -32,7 +32,7 @@ export function MapView() {
       ;
     const isPoblascion = location.toLowerCase().includes("old poblacion") ||
 
-      location === "Poblacion Cemetery"
+      location === "Old Poblacion Cemetery"
       ;
     const isEastVelencia = location.toLowerCase().includes("east valencia")
 

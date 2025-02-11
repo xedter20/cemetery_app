@@ -226,7 +226,7 @@ export default function PaymentInterface(props) {
           <thead className="bg-sky-500">
             <tr>
               <th className="text-white py-2 px-4">DATE PAID</th>
-              <th className="text-white py-2 px-4">KIND OF PAYMENT</th>
+              <th className="text-white py-2 px-4">RENTAL PAYMENT</th>
               <th className="text-white py-2 px-4">PERMIT NO.</th>
               <th className="text-white py-2 px-4">OR NO.</th>
               <th className="text-white py-2 px-4">AMOUNT</th>
@@ -402,7 +402,7 @@ export const Payments = () => {
 
     { Header: "Deceased Name", accessor: "DECEASED_NAME", Cell: ({ row, value }) => <span>{value}</span> },
     { Header: "Date Paid", accessor: "DATE_PAID", Cell: ({ row, value }) => <span>{new Date(value).toLocaleString()}</span> },
-    { Header: "Kind of Payment", accessor: "KIND_PAYMENT", Cell: ({ row, value }) => <span>{value}</span> },
+    { Header: "Rental Payment", accessor: "KIND_PAYMENT", Cell: ({ row, value }) => <span>{value}</span> },
     { Header: "Permit Number", accessor: "PERMIT_NO", Cell: ({ row, value }) => <span>{value}</span> },
     { Header: "Order Number", accessor: "ORDER_NO", Cell: ({ row, value }) => <span>{value}</span> },
     { Header: "Amount", accessor: "AMOUNT", Cell: ({ row, value }) => <span>{value}</span> },
@@ -953,10 +953,10 @@ export const Payments = () => {
                     }))
                   }
                 >
-                  <MenuItem value={"Poblacion Cemetery"}>
-                    Poblacion Cemetery
+                  <MenuItem value={"Old Poblacion Cemetery"}>
+                    Old Poblacion Cemetery
                   </MenuItem>
-                  <MenuItem value={"Ban Ban Cemetery"}>
+                  <MenuItem value={"Banban Cemetery"}>
                     Banban Cemetery
                   </MenuItem>
                   <MenuItem value={"East Velencia Cemetery"}>

@@ -24,7 +24,7 @@ import {
   ROUTE_REGISTRATION,
   TRESURER,
   ROUTE_ADMIN_PAYMENTS,
-  ROUTE_GUEST_MAP_SETTING
+  ROUTE_GUEST_MAP_SETTING,
 } from './constants';
 import {
   getToken,
@@ -53,6 +53,8 @@ import { UserManagement } from './cemetery/admin/user-management';
 import { Dashboard } from './cemetery/admin/dashboard';
 import { Mapping } from './cemetery/admin/mapping';
 import { MapSetting } from './cemetery/admin/map-setting';
+import Logs from './components/LogsViewer';
+
 import { useNavigate } from 'react-router-dom';
 
 import '@fontsource/roboto/300.css';
@@ -66,6 +68,33 @@ import axios from 'axios';
 
 console.log({ dex: `${apiConfig.baseUrl}api` })
 axios.defaults.baseURL = `${apiConfig.baseUrl}api`
+
+// Add axios interceptor to include user info in all requests
+axios.interceptors.request.use((config) => {
+  const user = getUser();
+
+  // Add user info to query params for GET requests
+  if (config.method === 'get') {
+    config.params = {
+      ...config.params,
+      session_userId: user?.id || 'system',
+      session_userEmail: user?.email || 'system'
+    };
+  }
+
+  // Add user info to body for POST/PUT/DELETE requests
+  if (['post', 'put', 'delete'].includes(config.method)) {
+    config.data = {
+      ...config.data,
+      session_userId: user?.id || 'system',
+      session_userEmail: user?.email || 'system'
+    };
+  }
+
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
 
 function ProtectedRoutes({ children, permission }) {
   const navigate = useNavigate();
@@ -116,6 +145,11 @@ function AdminProtectedRoutes({ children, permission }) {
 }
 
 const appRoutes = [
+  // {
+  //   path: ROUTE_ADMIN_LOGS,
+  //   element: <LoginPage />,
+  //   errorElement: <ErrorPage />
+  // },
   {
     path: ROUTE_LOGIN,
     element: <LoginPage />,
@@ -217,14 +251,14 @@ const appRoutes = [
         )
       },
 
-      // {
-      //   path: ROUTE_ADMIN_LOGS,
-      //   element: (
-      //     <AdminProtectedRoutes permission="canViewLogsX">
-      //       <Logs />
-      //     </AdminProtectedRoutes>
-      //   ),
-      // },
+      {
+        path: ROUTE_ADMIN_LOGS,
+        element: (
+          <AdminProtectedRoutes permission="canViewLogsX">
+            <Logs />
+          </AdminProtectedRoutes>
+        ),
+      },
       {
         path: ROUTE_ADMIN_NOTIFICATION,
         element: (

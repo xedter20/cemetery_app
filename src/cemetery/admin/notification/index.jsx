@@ -1,7 +1,3 @@
-
-
-
-
 import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -186,8 +182,11 @@ export const Notification = () => {
   const [selectedUser, setSelectedUser] = useState(null)
 
   const [message, setMessage] = useState(
-    `Dear ${selectedUser?.PAYEE_FNAME} ${selectedUser?.PAYEE_LNAME},\n\nThis is a friendly reminder that your payment (${selectedUser?.AMOUNT_PER_YEAR.toFixed(2)}) is due on (${selectedUser?.NEXT_PAYMENT_DATE && format(selectedUser?.NEXT_PAYMENT_DATE, "PPP")} for ${selectedUser?.DECEASED_NAME} located at ${selectedUser?.CMTRY_LOC}. Please ensure to make the payment at your earliest convenience.\n\nIf you have any questions or concerns, please don't hesitate to contact us.\n\nThank you for your prompt attention to this matter.\n\nBest regards,\n`
-  )
+    `Dear ${selectedUser?.PAYEE_FNAME || "Valued Customer"} ${selectedUser?.PAYEE_LNAME || ""},\n\n
+    This is a friendly reminder that your payment (${selectedUser?.AMOUNT_PER_YEAR ? selectedUser?.AMOUNT_PER_YEAR.toFixed(2) : "0.00"}) is due on (${selectedUser?.NEXT_PAYMENT_DATE ? format(selectedUser?.NEXT_PAYMENT_DATE, "PPP") : "N/A"}) for ${selectedUser?.DECEASED_NAME || "your loved one"} located at ${selectedUser?.CMTRY_LOC || "the cemetery"}. Please ensure to make the payment at your earliest convenience. If you have any questions or concerns, please don't hesitate to contact us.\n\n
+    Thank you for your prompt attention to this matter.\n\n
+    Best regards,\n`
+  );
 
 
 
@@ -203,27 +202,28 @@ export const Notification = () => {
 
 
   const [payeeList, setPayeeList] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(1);
 
   const fetchAllPayee = async () => {
+    try {
+      let res = await axios({
+        method: 'get',
+        url: 'fetchAllDuePayments',
+        params: { month: selectedMonth },
+      });
 
-    let res = await axios({
-      method: 'get',
-      url: 'fetchAllDuePayments',
-      data: {}
-    });
-
-    let data = res.data.data;
-
-
-    setPayeeList(data)
-
-  }
+      let data = res.data.data;
+      setPayeeList(data);
+    } catch (error) {
+      console.error('Error fetching payee data:', error);
+    }
+  };
 
 
   useEffect(() => {
     fetchAllPayee()
 
-  }, [])
+  }, [selectedMonth])
 
 
 
@@ -262,21 +262,47 @@ export const Notification = () => {
     })
   }, [searchTerm, dueDateFilter, payeeList])
 
-  return <Tabs defaultValue="users" className="w-full">
-    <TabsList className="grid w-full grid-cols-2">
-      <TabsTrigger value="users">Payee List</TabsTrigger>
-      <TabsTrigger value="compose">Compose Reminder</TabsTrigger>
-    </TabsList>
-    <TabsContent value="users">
-      {/* <UserList onSendReminder={openModal} /> */}
-      <div className="flex space-x-4 justify-end mt-2 mb-2">
-        <Input
-          placeholder="Search by payee name or email"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
-        {/* <Select value={dueDateFilter} onValueChange={setDueDateFilter}>
+
+  const handleMonthChange = (value) => {
+    console.log('Selected month:', value);
+    setSelectedMonth(value);
+    fetchAllPayee();
+  };
+
+  return <div>
+    <div className="space-y-2">
+
+      <div className="space-y-2 mb-4">
+        <Label htmlFor="month-duration">Select Upcoming Due Duration (in Months)</Label>
+        <Select id="month-duration" onValueChange={handleMonthChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select duration" />
+          </SelectTrigger>
+          <SelectContent>
+            {Array.from({ length: 12 }, (_, i) => (
+              <SelectItem key={i + 1} value={i + 1}>
+                {i + 1} Month{(i > 0) ? 's' : ''}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+    <Tabs defaultValue="users" className="w-full">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="users">Payee List</TabsTrigger>
+        <TabsTrigger value="compose">Compose Reminder</TabsTrigger>
+      </TabsList>
+      <TabsContent value="users">
+        {/* <UserList onSendReminder={openModal} /> */}
+        <div className="flex space-x-4 justify-end mt-2 mb-2">
+          <Input
+            placeholder="Search by payee name or email"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-sm"
+          />
+          {/* <Select value={dueDateFilter} onValueChange={setDueDateFilter}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by due date" />
           </SelectTrigger>
@@ -286,67 +312,46 @@ export const Notification = () => {
             <SelectItem value="upcoming">Upcoming</SelectItem>
           </SelectContent>
         </Select> */}
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Deceased Name</TableHead>
-            <TableHead>Payee Name</TableHead>
-            <TableHead>Payee Email</TableHead>
-            <TableHead>Due Amount</TableHead>
-            <TableHead>Due Date</TableHead>
-            <TableHead>Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredUsers.map((user) => {
-
-            let payeeFullName = `${user.PAYEE_FNAME} ${user.PAYEE_LNAME}`
-            return <TableRow key={user.DECEASED_ID}>
-              <TableCell>{user.DECEASED_NAME}</TableCell>
-              <TableCell>{payeeFullName}</TableCell>
-              <TableCell>{user.PAYEE_EMAIL}</TableCell>
-              <TableCell>{user.AMOUNT}</TableCell>
-              <TableCell>{
-
-                format(user.NEXT_PAYMENT_DATE, "PPP")
-              }</TableCell>
-              <TableCell>
-                <Button onClick={() => {
-                  setModalOpen(true)
-                  setSelectedUser(user)
-
-                }}>Send Reminder</Button>
-              </TableCell>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Deceased Name</TableHead>
+              <TableHead>Payee Name</TableHead>
+              <TableHead>Payee Email</TableHead>
+              <TableHead>Due Amount</TableHead>
+              <TableHead>Due Date</TableHead>
+              <TableHead>Action</TableHead>
             </TableRow>
-          })}
-        </TableBody>
-      </Table>
-    </TabsContent>
-    <TabsContent value="compose">
+          </TableHeader>
+          <TableBody>
+            {filteredUsers.map((user) => {
+
+              let payeeFullName = `${user.PAYEE_FNAME} ${user.PAYEE_LNAME}`
+              return <TableRow key={user.DECEASED_ID}>
+                <TableCell>{user.DECEASED_NAME}</TableCell>
+                <TableCell>{payeeFullName}</TableCell>
+                <TableCell>{user.PAYEE_EMAIL}</TableCell>
+                <TableCell>{user.AMOUNT}</TableCell>
+                <TableCell>{
+
+                  format(user.NEXT_PAYMENT_DATE, "PPP")
+                }</TableCell>
+                <TableCell>
+                  <Button onClick={() => {
+                    setModalOpen(true)
+                    setSelectedUser(user)
+
+                  }}>Send Reminder</Button>
+                </TableCell>
+              </TableRow>
+            })}
+          </TableBody>
+        </Table>
+      </TabsContent>
+      <TabsContent value="compose">
 
 
-      <EmailEditor
-        setEmail={setEmail}
-        setMessage={setMessage} // Ensure setMessage is passed down here as well
-        setSubject={setSubject} // Ensure setSubject is passed down here
-        email={email}
-        subject={subject}
-        message={message}
-        amount={selectedUser?.AMOUNT_PER_YEAR}
-        deceaseName={`${selectedUser?.DECEASED_NAME}`}
-        dueDate={`${selectedUser?.NEXT_PAYMENT_DATE}`}
-        cemeteryLocation={`${selectedUser?.CMTRY_LOC}`}
-        payeeFullName={`${selectedUser?.PAYEE_FNAME} ${selectedUser?.PAYEE_LNAME}`}
-      />
-    </TabsContent>
-
-
-    <Dialog open={isOpen} onOpenChange={setModalOpen}>
-      <DialogContent className="sm:max-w-[700px]">
-        {/* <DialogHeader>
-          <DialogTitle>Compose Payment Reminder Email</DialogTitle>
-        </DialogHeader> */}
         <EmailEditor
           setEmail={setEmail}
           setMessage={setMessage} // Ensure setMessage is passed down here as well
@@ -360,16 +365,38 @@ export const Notification = () => {
           cemeteryLocation={`${selectedUser?.CMTRY_LOC}`}
           payeeFullName={`${selectedUser?.PAYEE_FNAME} ${selectedUser?.PAYEE_LNAME}`}
         />
-      </DialogContent>
-    </Dialog>
+      </TabsContent>
 
 
-    <ToastContainer />
-    {/* This modal is redundant and should be removed */}
-    {/* <EmailReminderModal 
+      <Dialog open={isOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="sm:max-w-[700px]">
+          {/* <DialogHeader>
+          <DialogTitle>Compose Payment Reminder Email</DialogTitle>
+        </DialogHeader> */}
+          <EmailEditor
+            setEmail={setEmail}
+            setMessage={setMessage} // Ensure setMessage is passed down here as well
+            setSubject={setSubject} // Ensure setSubject is passed down here
+            email={email}
+            subject={subject}
+            message={message}
+            amount={selectedUser?.AMOUNT_PER_YEAR}
+            deceaseName={`${selectedUser?.DECEASED_NAME}`}
+            dueDate={`${selectedUser?.NEXT_PAYMENT_DATE}`}
+            cemeteryLocation={`${selectedUser?.CMTRY_LOC}`}
+            payeeFullName={`${selectedUser?.PAYEE_FNAME} ${selectedUser?.PAYEE_LNAME}`}
+          />
+        </DialogContent>
+      </Dialog>
+
+
+      <ToastContainer />
+      {/* This modal is redundant and should be removed */}
+      {/* <EmailReminderModal 
     isOpen={isModalOpen} 
     onClose={() => setIsModalOpen(false)}
     user={selectedUser}
   /> */}
-  </Tabs>
+    </Tabs>
+  </div>
 };

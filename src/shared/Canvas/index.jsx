@@ -22,7 +22,9 @@ const DeceasedDetails = ({ data, handleReset, handleSave }) => {
 
   console.log(user?.accountType)
 
-  let role = user?.accountType === 'admin';
+  let role = user?.accountType === 'admin' || user?.accountType === 'enterprise';
+  console.log({ role })
+
   return (
     <div className="p-0 flex justify-center">
       {/* Card container with modern shadow and rounded corners */}
@@ -133,7 +135,7 @@ export const CemeteryCanvas = ({
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [lastPosition, setLastPosition] = useState({ x: 0, y: 0 });
-  const [points, setPoints] = useState(JSON.parse(deceasedInfo.canvasMap))
+  const [points, setPoints] = useState(JSON.parse(deceasedInfo.canvasMap || `[]`))
 
   const responsePermission = getPermission();
   const token = getToken();
@@ -141,7 +143,7 @@ export const CemeteryCanvas = ({
 
   console.log(user?.accountType)
 
-  let role = user?.accountType === 'admin';
+  let role = user?.accountType === 'admin' || user?.accountType === 'enterprise';
 
 
 
@@ -339,8 +341,9 @@ export const CemeteryCanvas = ({
 
 
 
-  console.log({ user })
-  let isDisabled = user?.accountType !== 'admin';
+  console.log({ dexxxx: user })
+  let isDisabled = user?.accountType !== 'admin'
+    && user?.accountType !== 'enterprise';
   return <div className="flex">
     {/* Canvas on the left */}
     <div className="flex-1 relative">

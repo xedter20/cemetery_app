@@ -107,7 +107,7 @@ export const Dashboard = () => {
             alt={item.title}
             className="w-20 h-20 object-cover rounded-lg"
           />
-          <h3 className="text-md font-semibold text-green-500 mt-4">
+          <h3 className="text-md font-semibold text-blue-500 mt-4">
             {item.name}
           </h3>
           <p className="text-gray-600 text-sm mt-2 font-bold">{item.value}</p>

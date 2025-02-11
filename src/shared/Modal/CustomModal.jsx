@@ -16,8 +16,8 @@ const style = {
   p: 4,
 };
 
-export default function CustomModal({ children , open, onClose, onOk, onCancel, width=400}) {
- 
+export default function CustomModal({ children, open, onClose, onOk, onCancel, width = 400, label = 'Create' }) {
+
   return (
     <div>
       <Modal
@@ -38,7 +38,7 @@ export default function CustomModal({ children , open, onClose, onOk, onCancel, 
               Cancel
             </Button>
             <Button variant="contained" onClick={onOk}>
-              Create
+              {label}
             </Button>
           </Grid2>
         </Box>
